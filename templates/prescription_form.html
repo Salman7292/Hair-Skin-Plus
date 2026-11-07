@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}New Prescription - DermaCare{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">New Prescription</h1>
+            <p class="text-sm text-slate-500">Create a clinical prescription with custom medicine durations and Urdu patient instructions.</p>
+        </div>
+        <a href="{{ url_for('patient_profile', id=patient.id) }}" class="px-4 py-2 text-slate-700 bg-white border border-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-50 transition duration-150 flex items-center space-x-1 shadow-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Cancel</span>
+        </a>
+    </div>
+
+    <!-- Patient Info Panel -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 grid grid-cols-2 md:grid-cols-5 gap-6 text-sm">
+        <div>
+            <span class="text-slate-400 block font-semibold uppercase text-xxs mb-0.5">Patient Name</span>
+            <span class="font-bold text-slate-800">{{ patient.name }}</span>
+        </div>
+        <div>
+            <span class="text-slate-400 block font-semibold uppercase text-xxs mb-0.5">Patient ID</span>
+            <span class="font-semibold text-slate-700">{{ patient.patient_id }}</span>
+        </div>
+        <div>
+            <span class="text-slate-400 block font-semibold uppercase text-xxs mb-0.5">Age & Gender</span>
+            <span class="font-semibold text-slate-800">{{ patient.age }} yrs / {{ patient.gender }}</span>
+        </div>
+        <div>
+            <span class="text-slate-400 block font-semibold uppercase text-xxs mb-0.5">Contact</span>
+            <span class="font-semibold text-slate-800">{{ patient.phone }}</span>
+        </div>
+        <div class="col-span-2 md:col-span-1">
+            <span class="text-slate-400 block font-semibold uppercase text-xxs mb-0.5">Consultation Date</span>
+            <span class="font-semibold text-slate-800">{{ today_date }}</span>
+        </div>
+    </div>
+
+    <form id="prescription-form" action="{{ url_for('prescription_save') }}" method="POST" class="space-y-6">
+        <!-- Hidden Inputs for Form Submission -->
+        <input type="hidden" name="patient_id" value="{{ patient.patient_id }}">
+        <input type="hidden" name="medicines_json" id="medicines_json">
+
+        <!-- Diagnosis Box -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-4">
+            <h2 class="font-bold text-slate-800 text-base flex items-center space-x-2 border-b border-slate-100 pb-3">
+                <i data-lucide="activity" class="w-5 h-5 text-teal-600"></i>
+                <span>Diagnosis & Skin Condition</span>
+            </h2>
+            <div>
+                <label for="diagnosis" class="block text-xs font-bold text-slate-600 uppercase mb-2">Diagnosis / Skin Condition *</label>
+                <textarea id="diagnosis" name="diagnosis" rows="2" required placeholder="e.g. Atopic Dermatitis, Acne Vulgaris, Plaque Psoriasis..."
+                          class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 font-medium"></textarea>
+            </div>
+        </div>
+
+        <!-- Medicine Selector Box -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
+            <h2 class="font-bold text-slate-800 text-base flex items-center space-x-2 border-b border-slate-100 pb-3">
+                <i data-lucide="pill" class="w-5 h-5 text-teal-600"></i>
+                <span>Prescription Medications</span>
+            </h2>
+
+            <!-- Search and Select Header Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Search Autocomplete Input -->
+                <div class="relative md:col-span-2">
+                    <label for="med_search_input" class="block text-xs font-bold text-slate-600 uppercase mb-2">Search Medicine Formulations</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text" id="med_search_input" placeholder="Type medicine name to search..." autocomplete="off"
+                               class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                    </div>
+                    <!-- Dropdown box -->
+                    <div id="med_dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto hidden z-30">
+                        <!-- Filled dynamically by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Select Dropdown Shortcut -->
+                <div>
+                    <label for="default_meds_select" class="block text-xs font-bold text-slate-600 uppercase mb-2">Or select from catalog</label>
+                    <select id="default_meds_select"
+                            class="w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                        <option value="">-- Choose Medicine --</option>
+                        {% for med in default_medicines %}
+                            <option value="{{ med.id }}">{{ med.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Detail modification Inputs -->
+            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wide">Configure Medication Line Details</h3>
+                
+                <input type="hidden" id="input_med_id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Medicine Name -->
+                    <div class="md:col-span-2">
+                        <label for="input_med_name" class="block text-xxs font-bold text-slate-600 uppercase mb-1">Medication Name</label>
+                        <input type="text" id="input_med_name" placeholder="e.g. Cetirizine 10mg"
+                               class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                    </div>
+
+                    <!-- Dosage -->
+                    <div>
+                        <label for="input_dosage" class="block text-xxs font-bold text-slate-600 uppercase mb-1">Dosage</label>
+                        <input type="text" id="input_dosage" placeholder="e.g. 1 Tablet / Apply thinly"
+                               class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                    </div>
+
+                    <!-- Frequency -->
+                    <div>
+                        <label for="input_frequency" class="block text-xxs font-bold text-slate-600 uppercase mb-1">Frequency</label>
+                        <input type="text" id="input_frequency" placeholder="e.g. Once Daily / Twice Daily"
+                               class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <!-- Duration -->
+                    <div>
+                        <label for="input_duration" class="block text-xxs font-bold text-slate-600 uppercase mb-1">Duration</label>
+                        <input type="text" id="input_duration" placeholder="e.g. 5 Days / 2 Weeks"
+                               class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                    </div>
+
+                    <!-- Urdu instructions -->
+                    <div class="md:col-span-2">
+                        <label for="input_urdu" class="block text-xxs font-bold text-slate-600 uppercase mb-1">Urdu Instructions (RTL)</label>
+                        <input type="text" id="input_urdu" placeholder="یہ دوا روزانہ ایک گولی رات کو استعمال کریں۔" style="direction: rtl;"
+                               class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 text-right font-medium">
+                    </div>
+
+                    <!-- Add Button -->
+                    <div>
+                        <button type="button" id="btn_add_medicine" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition duration-150 flex items-center justify-center space-x-1">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Add to Rx</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescription Items Table Grid -->
+            <div class="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 uppercase text-xxs tracking-wider border-b border-slate-100">
+                            <th class="p-4 font-bold">Medication & Patient Instruction</th>
+                            <th class="p-4 font-bold">Dosage</th>
+                            <th class="p-4 font-bold">Frequency</th>
+                            <th class="p-4 font-bold">Duration</th>
+                            <th class="p-4 font-bold text-center w-28">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prescription_items_body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="5" class="p-6 text-center text-slate-400 italic text-sm">
+                                No medicines added yet. Search and add medicines above.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Prescription Notes Card -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-4">
+            <h2 class="font-bold text-slate-800 text-base flex items-center space-x-2 border-b border-slate-100 pb-3">
+                <i data-lucide="file-text" class="w-5 h-5 text-teal-600"></i>
+                <span>Doctor's Advice & Care Notes</span>
+            </h2>
+            <div>
+                <label for="doctor_notes" class="block text-xs font-bold text-slate-600 uppercase mb-2">Instructions / General Notes (Optional)</label>
+                <textarea id="doctor_notes" name="doctor_notes" rows="3" placeholder="e.g. Avoid direct sunlight, wash with mild cleanser daily, return for checkup in 2 weeks."
+                          class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 text-sm"></textarea>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="{{ url_for('patient_profile', id=patient.id) }}" class="px-6 py-3.5 border border-slate-200 text-slate-700 bg-white rounded-xl font-semibold hover:bg-slate-50 transition duration-150 shadow-sm">
+                Cancel
+            </a>
+            <button type="submit" class="px-8 py-3.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition duration-150 flex items-center space-x-2">
+                <i data-lucide="save" class="w-5 h-5"></i>
+                <span>Save Prescription</span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

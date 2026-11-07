@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Profile: {{ patient.name }} - DermaCare{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Profile Page Header -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-2xl bg-teal-100 border border-teal-200 text-teal-800 flex items-center justify-center text-2xl font-bold shadow-sm">
+                {{ patient.name[0] | upper }}
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">{{ patient.name }}</h1>
+                <p class="text-sm font-semibold text-slate-500">File ID: <span class="text-slate-800">{{ patient.patient_id }}</span></p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('patient_edit', id=patient.id) }}" class="px-4 py-2.5 text-slate-700 bg-white border border-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-50 transition duration-150 flex items-center space-x-1.5 shadow-sm">
+                <i data-lucide="edit-3" class="w-4 h-4 text-slate-500"></i>
+                <span>Edit Profile</span>
+            </a>
+            <a href="{{ url_for('prescription_new', patient_id=patient.patient_id) }}" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold shadow-sm transition duration-150 flex items-center space-x-2">
+                <i data-lucide="file-signature" class="w-5 h-5"></i>
+                <span>New Prescription</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Demographics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Vitals & Info Card -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-4 md:col-span-2">
+            <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-3 flex items-center space-x-2">
+                <i data-lucide="info" class="w-5 h-5 text-teal-600"></i>
+                <span>Demographic Info</span>
+            </h2>
+            <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+                <div>
+                    <span class="text-slate-400 block font-medium uppercase text-xxs">Age</span>
+                    <span class="font-semibold text-slate-800">{{ patient.age }} Years</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-medium uppercase text-xxs">Gender</span>
+                    <span class="font-semibold text-slate-800">{{ patient.gender }}</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-medium uppercase text-xxs">Contact Phone</span>
+                    <span class="font-semibold text-slate-800">{{ patient.phone }}</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-medium uppercase text-xxs">Registered On</span>
+                    <span class="font-semibold text-slate-800">{{ patient.created_at[:16] }}</span>
+                </div>
+                <div class="col-span-2 border-t border-slate-100 pt-3">
+                    <span class="text-slate-400 block font-medium uppercase text-xxs mb-1">Residential Address</span>
+                    <span class="text-slate-800 font-medium">{{ patient.address or 'No address registered' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Card -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
+            <div class="space-y-3">
+                <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-3 flex items-center space-x-2">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-teal-600"></i>
+                    <span>Clinical Notes</span>
+                </h2>
+                <div class="text-sm text-slate-600 italic leading-relaxed">
+                    {{ patient.notes or 'No special history or warnings logged.' }}
+                </div>
+            </div>
+            <div class="text-xxs text-slate-400 border-t border-slate-100 pt-3 mt-4">
+                Please edit patient profile to update clinical alerts.
+            </div>
+        </div>
+    </div>
+
+    <!-- Consultations / Prescription History -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-slate-50">
+            <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                <i data-lucide="history" class="w-5 h-5 text-teal-600"></i>
+                <span>Prescription History</span>
+            </h2>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-600 uppercase text-xs tracking-wider border-b border-slate-200">
+                        <th class="p-4 font-bold">Date & Time</th>
+                        <th class="p-4 font-bold">Diagnosis / Skin Condition</th>
+                        <th class="p-4 font-bold">Medications Prescribed</th>
+                        <th class="p-4 font-bold text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% if prescriptions %}
+                        {% for pres in prescriptions %}
+                            <tr class="hover:bg-slate-50 transition duration-150">
+                                <td class="p-4 font-semibold text-slate-700 text-sm">
+                                    {{ pres.created_at[:16] }}
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-bold text-teal-900 text-sm py-1 px-3 bg-teal-50 border border-teal-100 rounded-lg inline-block">
+                                        {{ pres.diagnosis }}
+                                    </div>
+                                    {% if pres.doctor_notes %}
+                                        <div class="text-xs text-slate-400 mt-1 italic">Note: {{ pres.doctor_notes }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex flex-wrap gap-2">
+                                        {% for item in pres.items %}
+                                            <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-700 rounded-md border border-slate-200 flex items-center space-x-1">
+                                                <span class="w-1 h-1 bg-teal-500 rounded-full"></span>
+                                                <span>{{ item.medicine_name }}</span>
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <a href="{{ url_for('prescription_view', id=pres.id) }}" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg inline-flex items-center space-x-1 shadow-sm transition duration-150">
+                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                        <span>View & Print</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="p-12 text-center text-slate-400 italic">
+                                <div class="flex flex-col items-center justify-center space-y-2">
+                                    <i data-lucide="folder-open" class="w-12 h-12 text-slate-300"></i>
+                                    <span>No previous prescriptions found for this patient.</span>
+                                    <a href="{{ url_for('prescription_new', patient_id=patient.patient_id) }}" class="text-teal-600 font-bold hover:underline">Write the first prescription</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

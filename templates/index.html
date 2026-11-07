@@ -1,0 +1,3652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hair Skin Plus &mdash; Prescription Desk</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='app_icon.ico') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='app_icon.ico') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='stamp.png') }}">
+
+  <!-- 1. Offline Local Fonts (Self-hosted WOFF2, zero network dependency) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
+
+  <!-- Online Google Fonts Fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Playfair+Display:ital,wght@1,700&family=Poppins:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Caveat:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- 2. Full Standalone Offline Tailwind CSS & Custom Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <!-- 3. Offline Tailwind Runtime Compiler (with CDN fallback) -->
+  <script src="{{ url_for('static', filename='js/tailwind.cdn.js') }}"></script>
+  <script>
+    if (typeof tailwind === 'undefined') {
+      document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
+    }
+  </script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#08423d',
+              dark: '#052e2a',
+              deep: '#0b5650',
+              accent: '#e0a030',
+              blue: '#0b5650',
+              royal: '#063b36',
+              emerald: '#059669',
+              teal: '#0d9488',
+              surface: '#eef3f3',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+            urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+            script: ['"Caveat"', 'cursive'],
+          },
+          boxShadow: {
+            'card': '0 2px 10px -2px rgba(6, 26, 47, 0.06), 0 1px 3px -1px rgba(6, 26, 47, 0.04)',
+            'glow-gold': '0 0 15px rgba(224, 160, 48, 0.3)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ── Typography & Base Styles ── */
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: #eef3f3;
+      color: #0f172a;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .urdu-text {
+      font-family: 'Noto Nastaliq Urdu', serif;
+      direction: rtl;
+      text-align: right;
+      line-height: 2.1;
+      font-size: 0.95rem;
+    }
+
+    .doctor-sig {
+      font-family: 'Caveat', cursive;
+    }
+
+    /* ── Prescription Card Theme (Hair Skin Plus) ── */
+    :root {
+      --deep: #0b5650;
+      --gold: #e0a030;
+      --mint: #d7ebe8;
+      --crimson: #a50e2a;
+      --bg: #e5e7e8;
+    }
+
+    .serif {
+      font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-weight: 700;
+    }
+
+    .pill {
+      background: var(--deep);
+      color: #ffffff;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 12px;
+      display: inline-block;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    }
+
+    .ruled-lines {
+      background-image: linear-gradient(to bottom, transparent 29px, #e2e8f0 30px);
+      background-size: 100% 30px;
+      line-height: 30px;
+    }
+
+    .ruled-lines-compact {
+      background-image: linear-gradient(to bottom, transparent 19px, #e2e8f0 20px);
+      background-size: 100% 20px;
+      line-height: 20px;
+    }
+
+    #print-zone .pz-ur,
+    .preview-ur {
+      font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', serif;
+      line-height: 2.1;
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* ── Sidebar Toggle Transition ── */
+    #sidebar {
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    #sidebar.collapsed {
+      width: 68px !important;
+    }
+
+    #sidebar.collapsed .sidebar-label,
+    #sidebar.collapsed .sidebar-sublabel,
+    #sidebar.collapsed .sidebar-badge,
+    #sidebar.collapsed .sidebar-brand-text,
+    #sidebar.collapsed .sidebar-doctor-text,
+    #sidebar.collapsed .sidebar-tools,
+    #sidebar.collapsed .sidebar-footer-text {
+      display: none !important;
+    }
+
+    #sidebar.collapsed .sidebar-nav-btn {
+      justify-content: center !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    #sidebar.collapsed .sidebar-nav-btn>div {
+      justify-content: center !important;
+    }
+
+    #sidebar.collapsed .sidebar-brand-header {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 12px 6px 8px 6px !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    #sidebar.collapsed .sidebar-brand-header>div:first-child {
+      justify-content: center !important;
+      margin: 0 auto !important;
+    }
+
+    #sidebar.collapsed #sidebar-toggle-btn {
+      width: 32px !important;
+      height: 24px !important;
+      margin: 0 auto !important;
+      border-radius: 6px !important;
+      background: #08423d !important;
+      color: #e0a030 !important;
+      border: 1px solid rgba(224, 160, 48, 0.4) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    #sidebar.collapsed #sidebar-toggle-btn:hover {
+      background: #0b5650 !important;
+      color: #ffffff !important;
+      border-color: #e0a030 !important;
+    }
+
+    #sidebar.collapsed #sidebar-toggle-btn svg {
+      transform: rotate(180deg) !important;
+    }
+
+    #sidebar.collapsed .sidebar-doctor-header {
+      justify-content: center !important;
+      padding: 10px 0 !important;
+    }
+
+    #sidebar.collapsed nav {
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+    }
+
+    #sidebar.collapsed .sidebar-bottom {
+      padding: 8px 6px !important;
+    }
+
+    #sidebar.collapsed .sidebar-bottom .grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    #sidebar-toggle-btn {
+      transition: all 0.2s ease;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Toast Notification */
+    #toast {
+      visibility: hidden;
+      min-width: 280px;
+      background-color: #08423d;
+      color: #ffffff;
+      text-align: center;
+      border-radius: 12px;
+      padding: 12px 20px;
+      position: fixed;
+      z-index: 100;
+      left: 50%;
+      bottom: 75px;
+      transform: translateX(-50%);
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      border: 1px solid #e0a030;
+    }
+
+    #toast.show {
+      visibility: visible;
+      animation: fadeInOut 2.8s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+        bottom: 50px;
+      }
+
+      15% {
+        opacity: 1;
+        bottom: 75px;
+      }
+
+      85% {
+        opacity: 1;
+        bottom: 75px;
+      }
+
+      100% {
+        opacity: 0;
+        bottom: 50px;
+      }
+    }
+
+    /* Form Fields */
+    .form-input {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.825rem;
+      color: #1e293b;
+      transition: all 0.15s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #0b5650;
+      box-shadow: 0 0 0 3px rgba(11, 86, 80, 0.15);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #475569;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       PRINT STYLES — Prescription Card (Hair Skin Plus Template)
+    ══════════════════════════════════════════════════════════════ */
+    #print-zone {
+      display: none !important;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+      }
+
+      body * {
+        visibility: hidden !important;
+      }
+
+      #print-zone,
+      #print-zone * {
+        visibility: visible !important;
+      }
+
+      #print-zone {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        min-height: 297mm !important;
+        background: #ffffff !important;
+        font-family: 'Poppins', Arial, sans-serif !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      #print-zone .pz-ur {
+        font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', serif !important;
+        direction: rtl !important;
+        text-align: right !important;
+        line-height: 2.1 !important;
+      }
+
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="h-screen w-screen overflow-hidden bg-[#eef3f3] relative">
+
+  <!-- ── TOAST NOTIFICATION ── -->
+  <div id="toast">Consultation saved successfully!</div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       FULL-SCREEN WELCOME SCREEN (Whole App Landing Window)
+  ══════════════════════════════════════════════════════════════════════════════ -->
+  <div id="welcome-screen-overlay"
+    class="fixed inset-0 z-50 w-screen h-screen bg-[#f1faf9] overflow-y-auto flex flex-col justify-between select-none">
+
+    <!-- Background Fluid Waves (SVG) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
+      <svg class="absolute -top-24 -left-24 w-[650px] h-[650px] text-teal-200/50" viewBox="0 0 200 200"
+        fill="currentColor">
+        <path
+          d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,88.5,-0.9C86.9,14.6,81.2,29.1,72.6,41.5C64,53.8,52.5,63.9,39.4,70.9C26.3,77.9,11.6,81.8,-3.2,82.4C-18,83,-36,80.3,-50.2,72.4C-64.4,64.5,-74.8,51.4,-81.4,36.8C-88,22.2,-90.8,6.1,-87.9,-9.1C-85.1,-24.3,-76.6,-38.6,-65.2,-48.9C-53.8,-59.2,-39.5,-65.5,-25.6,-73C-11.7,-80.5,1.8,-89.2,15.6,-88.4C29.4,-87.6,43.5,-77.3,44.7,-76.4Z"
+          transform="translate(100 100)" />
+      </svg>
+      <svg class="absolute -bottom-24 -right-24 w-[750px] h-[750px] text-emerald-100/60" viewBox="0 0 200 200"
+        fill="currentColor">
+        <path
+          d="M38.1,-63.9C50.2,-57.8,61.4,-49.2,69.5,-38C77.6,-26.8,82.6,-13.4,82.7,0.1C82.8,13.5,78,27,70.1,38.4C62.2,49.8,51.2,59.1,38.8,65.8C26.4,72.5,12.6,76.6,-1.2,78.7C-15,80.8,-30,80.9,-42.6,74.5C-55.2,68.1,-65.4,55.2,-72.6,41C-79.8,26.8,-84,11.4,-82.9,-3.6C-81.8,-18.6,-75.4,-33.2,-65.6,-44.6C-55.8,-56,-42.6,-64.2,-29.4,-69.7C-16.2,-75.2,-3,-78,9.7,-76.4C22.4,-74.8,35.1,-68.8,38.1,-63.9Z"
+          transform="translate(100 100)" />
+      </svg>
+    </div>
+
+    <!-- 1. Top Branding Header Bar -->
+    <header
+      class="h-16 px-6 lg:px-14 bg-white/90 backdrop-blur border-b border-teal-100/80 flex items-center justify-between shrink-0 shadow-xs z-10 relative">
+      <div class="flex items-center gap-3.5">
+        <img src="/static/stamp.png" class="h-11 w-auto object-contain" alt="Hair Skin Plus Logo"
+          onerror="this.style.display='none'">
+        <div class="border-l-2 border-teal-600/30 pl-3.5 flex flex-col justify-center">
+          <div class="flex items-center gap-2">
+            <span class="text-base font-black text-[#0b5650] leading-tight"
+              style="font-family: 'Libre Baskerville', Georgia, serif;">Hair Skin Plus</span>
+            <span
+              class="text-[9px] font-extrabold tracking-[0.18em] px-1.5 py-0.5 rounded bg-teal-50 text-[#08423d] border border-teal-200/60 uppercase">Dermatology
+              Clinic</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium leading-none mt-0.5">
+            <strong class="text-[#0b5650] font-bold">Dr. Seyab Ur Rahman</strong> &bull; Consultant Dermatologist
+            (Peshawar)
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 text-[#0b5650]">
+          <span class="text-lg font-bold italic tracking-wide"
+            style="font-family: 'Playfair Display', Georgia, cursive, serif;">
+            Healthy Skin... Confident You
+          </span>
+          <span class="text-teal-600 text-sm">✦</span>
+        </div>
+        <button type="button" onclick="closeWelcomeScreen('desk')"
+          class="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0b5650] bg-teal-50 hover:bg-teal-100 border border-teal-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+          <span>Enter Workspace</span>
+          <span class="text-sm font-black">&rarr;</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. Hero Interactive Content Section -->
+    <div
+      class="flex-1 flex flex-col lg:flex-row items-center justify-between px-6 lg:px-16 py-6 lg:py-8 gap-8 z-10 relative">
+
+      <!-- Left Side: Welcome Greeting & CTA -->
+      <div class="flex-1 max-w-2xl text-left">
+
+        <div class="flex items-center gap-2 mb-3">
+          <span
+            class="px-3 py-1 rounded-full bg-teal-100/70 text-[#0b5650] text-[11px] font-extrabold tracking-wide uppercase flex items-center gap-1.5 border border-teal-200">
+            <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+            Prescription Desk 2.0
+          </span>
+          <span class="text-xs text-slate-400 font-medium">Hair Skin Plus Digital Workspace</span>
+        </div>
+
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-[#0b5650] tracking-tight leading-none"
+          style="font-family: 'Playfair Display', Georgia, cursive, serif; font-style: italic;">
+          Welcome, Doctor
+        </h1>
+
+        <div class="flex items-center gap-2 mt-2">
+          <svg class="w-32 h-6 text-[#0b5650]" viewBox="0 0 120 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M0 12h32l5-9 6 18 6-20 6 14 4-5 6 2h55" />
+          </svg>
+          <div class="h-[1.5px] flex-1 bg-gradient-to-r from-[#0b5650]/40 to-transparent"></div>
+        </div>
+
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-700 tracking-wide mt-3"
+          style="font-family: 'Libre Baskerville', Georgia, serif; font-style: italic;">
+          Your Digital Prescription Workspace
+        </h2>
+
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed mt-2.5 max-w-xl font-medium">
+          Quickly search medicines, create professional prescriptions with Urdu instructions, and print with ease.
+        </p>
+
+        <!-- Main CTA Button: Open Prescription Desk -->
+        <div class="mt-8 flex items-center gap-4 flex-wrap">
+          <button type="button" onclick="closeWelcomeScreen('desk')"
+            class="group px-9 py-4 rounded-full text-white font-bold text-base shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-3.5 cursor-pointer border border-teal-300/40"
+            style="background: linear-gradient(135deg, #0b5650 0%, #0d6e66 50%, #08423d 100%); box-shadow: 0 12px 28px -5px rgba(11, 86, 80, 0.45);">
+            <div
+              class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0 group-hover:rotate-6 transition">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
+            <div class="h-6 w-[1.5px] bg-white/30"></div>
+            <span class="tracking-wide text-white text-base font-extrabold">Open Prescription Desk</span>
+            <svg class="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1.5" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <button type="button" onclick="closeWelcomeScreen('intake')"
+            class="px-6 py-4 rounded-full text-[#0b5650] bg-white hover:bg-teal-50 font-bold text-sm border border-teal-200 shadow-sm hover:shadow transition duration-150 flex items-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4 text-[#e0a030]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <span>New Patient Intake</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right Side: Doctor Hero Portrait -->
+      <div class="shrink-0 flex items-center justify-center relative">
+        <div
+          class="absolute -inset-6 bg-gradient-to-tr from-teal-200/50 via-teal-100/40 to-emerald-100/30 rounded-full blur-2xl">
+        </div>
+        <div
+          class="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/90 bg-white/50 backdrop-blur p-1 max-w-[360px] lg:max-w-[420px]">
+          <img src="/static/doctor_photo.png"
+            class="w-full h-auto max-h-[340px] lg:max-h-[380px] object-cover rounded-xl drop-shadow-md transform hover:scale-[1.01] transition duration-300"
+            alt="Dr. Seyab Ur Rahman - Consultant Dermatologist" onerror="this.src='/static/welcome_screen.jpg'">
+
+          <div
+            class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur px-3.5 py-2.5 rounded-xl shadow-lg border border-teal-100 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-[#0b5650] leading-tight">Dr. Seyab Ur Rahman</p>
+              <p class="text-[10px] text-slate-500 font-medium">FCPS Dermatology &bull; Peshawar</p>
+            </div>
+            <span
+              class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200">
+              Online
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. Bottom 5 Quick-Action Cards -->
+    <div class="px-6 lg:px-16 pb-10 lg:pb-14 pt-2 z-10 relative">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+
+        <!-- Card 1: Medicine Catalog -->
+        <div onclick="closeWelcomeScreen('catalog')"
+          class="bg-white/95 backdrop-blur hover:bg-white rounded-2xl p-4 border border-teal-100/90 shadow-sm hover:shadow-md hover:-translate-y-1 transition duration-200 flex flex-col items-center text-center cursor-pointer group">
+          <div
+            class="w-12 h-12 rounded-xl bg-teal-50 group-hover:bg-[#0b5650] text-[#0b5650] group-hover:text-white flex items-center justify-center transition duration-200 mb-2 shadow-xs">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <h4 class="text-xs font-bold text-slate-800 leading-tight">Medicine Catalog</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">Search &amp; Add</p>
+        </div>
+
+        <!-- Card 2: Create Prescription -->
+        <div onclick="closeWelcomeScreen('desk')"
+          class="bg-white/95 backdrop-blur hover:bg-white rounded-2xl p-4 border border-teal-100/90 shadow-sm hover:shadow-md hover:-translate-y-1 transition duration-200 flex flex-col items-center text-center cursor-pointer group">
+          <div
+            class="w-12 h-12 rounded-xl bg-teal-50 group-hover:bg-[#0b5650] text-[#0b5650] group-hover:text-white flex items-center justify-center transition duration-200 mb-2 shadow-xs">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h4 class="text-xs font-bold text-slate-800 leading-tight">Create Prescription</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">With Urdu Instructions</p>
+        </div>
+
+        <!-- Card 3: Print Easily -->
+        <div onclick="closeWelcomeScreen('desk'); setTimeout(triggerPrintSlip, 250);"
+          class="bg-white/95 backdrop-blur hover:bg-white rounded-2xl p-4 border border-teal-100/90 shadow-sm hover:shadow-md hover:-translate-y-1 transition duration-200 flex flex-col items-center text-center cursor-pointer group">
+          <div
+            class="w-12 h-12 rounded-xl bg-teal-50 group-hover:bg-[#0b5650] text-[#0b5650] group-hover:text-white flex items-center justify-center transition duration-200 mb-2 shadow-xs">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+          </div>
+          <h4 class="text-xs font-bold text-slate-800 leading-tight">Print Easily</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">Thermal &amp; A4 Sheet</p>
+        </div>
+
+        <!-- Card 4: Patient Management -->
+        <div onclick="closeWelcomeScreen('records')"
+          class="bg-white/95 backdrop-blur hover:bg-white rounded-2xl p-4 border border-teal-100/90 shadow-sm hover:shadow-md hover:-translate-y-1 transition duration-200 flex flex-col items-center text-center cursor-pointer group">
+          <div
+            class="w-12 h-12 rounded-xl bg-teal-50 group-hover:bg-[#0b5650] text-[#0b5650] group-hover:text-white flex items-center justify-center transition duration-200 mb-2 shadow-xs">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <h4 class="text-xs font-bold text-slate-800 leading-tight">Patient Management</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">Keep Records</p>
+        </div>
+
+        <!-- Card 5: Clinic Settings -->
+        <div onclick="closeWelcomeScreen('intake')"
+          class="bg-white/95 backdrop-blur hover:bg-white rounded-2xl p-4 border border-teal-100/90 shadow-sm hover:shadow-md hover:-translate-y-1 transition duration-200 flex flex-col items-center text-center cursor-pointer group">
+          <div
+            class="w-12 h-12 rounded-xl bg-teal-50 group-hover:bg-[#0b5650] text-[#0b5650] group-hover:text-white flex items-center justify-center transition duration-200 mb-2 shadow-xs">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h4 class="text-xs font-bold text-slate-800 leading-tight">Clinic Settings</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">Customize &amp; Intake</p>
+        </div>
+
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       APP SHELL: SIDEBAR + MAIN WORKSPACE
+  ══════════════════════════════════════════════════════════════ -->
+  <div id="app-shell" class="flex h-screen w-screen overflow-hidden">
+
+    <!-- ── LEFT NAVIGATION SIDEBAR (Midnight Navy / Cyan Theme) ── -->
+    <aside id="sidebar"
+      class="w-64 bg-[#08423d] text-slate-200 flex flex-col shrink-0 border-r border-[#0d4e47] shadow-xl select-none z-30 justify-between">
+
+      <!-- Top Branding Section -->
+      <div>
+        <!-- Clinic Brand Header -->
+        <div
+          class="sidebar-brand-header px-4 py-3.5 border-b border-[#0d4e47] bg-[#052e2a] flex items-center justify-between">
+          <!-- Stylized Hair Skin Plus Logo Icon & Name -->
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div onclick="if(document.getElementById('sidebar').classList.contains('collapsed')) toggleSidebar()"
+              class="w-9 h-9 rounded-xl bg-white p-1 flex items-center justify-center shadow-md border border-[#e0a030]/50 shrink-0 cursor-pointer hover:scale-105 transition"
+              title="Hair Skin Plus - Click to expand when collapsed">
+              <img src="/static/stamp.png" class="w-full h-full object-contain" alt="Hair Skin Plus Logo">
+            </div>
+            <div class="sidebar-brand-text min-w-0">
+              <h1 class="text-sm font-extrabold text-white tracking-wide leading-tight truncate">Hair Skin Plus</h1>
+              <p class="text-[10px] font-bold text-[#e0a030] tracking-wide truncate">Dermatology Clinic</p>
+            </div>
+          </div>
+
+          <!-- Sleek Dedicated Toggle Button -->
+          <button id="sidebar-toggle-btn" onclick="toggleSidebar()"
+            class="sidebar-toggle-btn w-7 h-7 rounded-lg bg-[#08423d] hover:bg-[#0b5650] text-[#e0a030] hover:text-white flex items-center justify-center border border-[#0d4e47] hover:border-[#e0a030]/40 transition shrink-0 cursor-pointer shadow-sm"
+            title="Collapse Sidebar (Ctrl+B)">
+            <svg class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Doctor Profile Sub-card -->
+        <div
+          class="sidebar-doctor-header px-5 py-3 border-b border-[#0d4e47] bg-[#08423d]/70 flex items-center gap-2.5">
+          <div
+            class="w-8 h-8 rounded-full bg-[#052e2a] text-[#e0a030] flex items-center justify-center font-black text-xs border border-[#e0a030]/30 shrink-0">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div class="sidebar-doctor-text min-w-0">
+            <p class="text-xs font-bold text-white truncate">Dr. Seyab Ur Rahman</p>
+            <p class="text-[10px] text-slate-400 truncate">Consultant Dermatologist</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="px-3 py-4 space-y-1.5">
+
+          <!-- Tab: Welcome Screen -->
+          <button type="button" onclick="switchTab('welcome')" id="tab-nav-welcome"
+            class="sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition duration-150 bg-[#0b5650] text-white shadow-md border-l-4 border-[#e0a030]">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-[#e0a030] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <div class="sidebar-label text-left">
+                <div class="leading-tight">Welcome Screen</div>
+                <div class="sidebar-sublabel text-[10px] font-normal opacity-80">Doctor Hub &amp; Overview</div>
+              </div>
+            </div>
+            <span
+              class="sidebar-badge px-1.5 py-0.5 rounded-full bg-[#052e2a] text-[#e0a030] text-[9px] font-extrabold border border-[#e0a030]/30">Home</span>
+          </button>
+
+          <!-- Tab: Prescription Desk -->
+          <button type="button" onclick="switchTab('desk')" id="tab-nav-desk"
+            class="sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#0c4f49] hover:text-white transition duration-150">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 shrink-0 text-[#e0a030]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2.2">
+                <path
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <div class="sidebar-label text-left">
+                <div class="leading-tight">Prescription Desk</div>
+                <div class="sidebar-sublabel text-[10px] font-normal opacity-80">Consultation &amp; Rx Sheet</div>
+              </div>
+            </div>
+            <span id="sidebar-desk-badge"
+              class="sidebar-badge w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          </button>
+
+          <!-- Tab: Patient Intake -->
+          <button type="button" onclick="switchTab('intake')" id="tab-nav-intake"
+            class="sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#0c4f49] hover:text-white transition duration-150">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-[#e0a030] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2">
+                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <div class="sidebar-label text-left">
+                <div class="leading-tight">Patient Intake</div>
+                <div class="sidebar-sublabel text-[10px] font-normal text-slate-400">Verify History &amp; Check-in</div>
+              </div>
+            </div>
+          </button>
+
+          <!-- Tab: Patient Records -->
+          <button type="button" onclick="switchTab('records')" id="tab-nav-records"
+            class="sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#0c4f49] hover:text-white transition duration-150">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-[#e0a030] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2">
+                <path
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <div class="sidebar-label text-left">
+                <div class="leading-tight">Patient Records</div>
+                <div class="sidebar-sublabel text-[10px] font-normal text-slate-400">All Registered Patients</div>
+              </div>
+            </div>
+            <span id="sidebar-patient-count"
+              class="sidebar-badge px-2 py-0.5 rounded-full bg-[#052e2a] text-[#e0a030] text-[10px] font-extrabold border border-[#e0a030]/30">
+              2
+            </span>
+          </button>
+
+          <!-- Tab: Medicine Catalog -->
+          <button type="button" onclick="switchTab('catalog')" id="tab-nav-catalog"
+            class="sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#0c4f49] hover:text-white transition duration-150">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-[#e0a030] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2">
+                <path
+                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+              <div class="sidebar-label text-left">
+                <div class="leading-tight">Medicine Catalog</div>
+                <div class="sidebar-sublabel text-[10px] font-normal text-slate-400">Dosages &amp; Urdu Notes</div>
+              </div>
+            </div>
+            <span
+              class="sidebar-badge px-2 py-0.5 rounded-full bg-[#052e2a] text-[#e0a030] text-[10px] font-extrabold border border-[#e0a030]/30">
+              {{ medicines|length }}
+            </span>
+          </button>
+
+        </nav>
+      </div>
+
+      <!-- Bottom Tools & Footer -->
+      <div class="sidebar-bottom p-3 border-t border-[#0d4e47] bg-[#052e2a]/90 space-y-2">
+        <div class="sidebar-footer-text text-[10px] uppercase font-bold text-slate-400 px-2 tracking-wider">Quick Tools
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+          <button type="button" onclick="triggerDbBackup()"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#08423d] hover:bg-[#0b5650] text-slate-300 transition border border-[#0d4e47]">
+            <svg class="w-3.5 h-3.5 text-[#e0a030] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+            <span class="sidebar-label">Backup</span>
+          </button>
+          <button type="button" onclick="switchTab('records')"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#08423d] hover:bg-[#0b5650] text-slate-300 transition border border-[#0d4e47]">
+            <svg class="w-3.5 h-3.5 text-[#e0a030] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span class="sidebar-label">History</span>
+          </button>
+        </div>
+
+        <div
+          class="sidebar-footer-text pt-2 border-t border-[#0d4e47] flex items-center justify-between text-[10px] text-slate-400 px-1">
+          <span>Hair Skin Plus, Peshawar</span>
+          <span class="text-[#e0a030] font-bold">0301-5888800</span>
+        </div>
+      </div>
+
+    </aside>
+
+
+    <!-- ── MAIN WORKSPACE CONTAINER ────────────────────────── -->
+    <main id="main-workspace" class="flex-1 flex flex-col h-full bg-[#eef3f3] overflow-hidden relative">
+
+      <!-- ═════════════════════════════════════════════════════
+         TAB VIEW 1: PRESCRIPTION DESK & LIVE 80MM PREVIEW
+      ══════════════════════════════════════════════════════════ -->
+      <section id="tab-view-desk" class="flex-1 flex flex-col h-full overflow-hidden">
+
+        <!-- Active Patient Bar (Shown ONLY on Prescription Desk when a patient is selected!) -->
+        <header id="global-patient-bar"
+          class="hidden h-16 px-6 bg-white border-b border-slate-200/80 flex items-center justify-between shrink-0 shadow-xs z-10">
+
+          <!-- Left: Patient Avatar & Demographics -->
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div
+              class="w-10 h-10 rounded-full bg-[#d7ebe8] text-[#0b5650] flex items-center justify-center font-black text-sm shrink-0 border border-[#c5e4e0]">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 id="header-patient-name" class="text-sm font-extrabold text-slate-900 truncate">No Patient Selected
+                </h2>
+                <span id="header-patient-id"
+                  class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#0b5650] text-white">HSP-0000</span>
+                <span id="header-consultation-status"
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Active Consultation
+                </span>
+              </div>
+              <div class="flex items-center gap-3 text-xs text-slate-500 mt-0.5 flex-wrap">
+                <span id="header-patient-phone">📞 —</span>
+                <span class="text-slate-300">|</span>
+                <span id="header-patient-meta">—</span>
+                <span class="text-slate-300">|</span>
+                <span id="header-patient-last-visit">Last Visit: —</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center/Right Stat Badges & Actions -->
+          <div class="flex items-center gap-3 shrink-0">
+
+            <!-- Stat 1: Total Visits -->
+            <div
+              class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-100 text-purple-900">
+              <div
+                class="w-7 h-7 rounded-lg bg-purple-200/70 text-purple-700 flex items-center justify-center text-xs font-black">
+                📊
+              </div>
+              <div class="text-left">
+                <div class="text-[9px] uppercase font-bold text-purple-600">Total Visits</div>
+                <div id="stat-total-visits" class="text-xs font-black">0</div>
+              </div>
+            </div>
+
+            <!-- Stat 2: Allergies -->
+            <div id="stat-allergies-box"
+              class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-600">
+              <div
+                class="w-7 h-7 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-black">
+                ⚠️
+              </div>
+              <div class="text-left">
+                <div class="text-[9px] uppercase font-bold text-slate-500">Allergies</div>
+                <div id="stat-allergies-text" class="text-xs font-bold truncate max-w-[120px]">None Reported</div>
+              </div>
+            </div>
+
+            <!-- Stat 3: Medical History Button -->
+            <button type="button" onclick="openHistorySlideover()"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 transition">
+              <div
+                class="w-7 h-7 rounded-lg bg-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs font-black">
+                📋
+              </div>
+              <div class="text-left">
+                <div class="text-[9px] uppercase font-bold text-emerald-600">Medical History</div>
+                <div class="text-xs font-bold flex items-center gap-1">
+                  <span>View File</span>
+                  <span class="text-[10px]">&rarr;</span>
+                </div>
+              </div>
+            </button>
+
+            <!-- Action: Switch Patient -->
+            <button type="button" onclick="switchPatientToNext()"
+              class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+              <svg class="w-3.5 h-3.5 text-[#e0a030]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2">
+                <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              <span>Switch Patient</span>
+            </button>
+
+          </div>
+
+        </header>
+
+        <!-- Main Desk Layout: Split Pane -->
+        <div class="flex-1 flex overflow-hidden p-4 gap-4">
+
+          <!-- ── LEFT 60%: Medicine Catalog & Consultation Details ── -->
+          <div class="flex-1 flex flex-col overflow-y-auto space-y-4 pr-1">
+
+            <!-- No Patient Selected Notice Banner (Hidden when patient active) -->
+            <div id="desk-no-patient-warning"
+              class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xs">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-lg shrink-0">
+                  ⚠️
+                </div>
+                <div>
+                  <h4 class="text-xs font-extrabold text-amber-950 uppercase tracking-wide">No Patient Selected for
+                    Consultation</h4>
+                  <p class="text-xs text-amber-800">Search clinic records in <strong>Patient Intake</strong> to load
+                    past history or register a new walk-in patient.</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="switchTab('intake')"
+                  class="px-3.5 py-2 bg-[#0b5650] hover:bg-[#0e6e66] text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <span>Find Patient</span>
+                </button>
+                <button type="button" onclick="prepareNewPatientIntake()"
+                  class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-xl transition border border-slate-300 flex items-center gap-1.5 shadow-2xs">
+                  <svg class="w-3.5 h-3.5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>+ Walk-in Patient</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 1: Medicine Catalog Browser -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-card p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                    <span
+                      class="w-6 h-6 rounded-lg bg-[#f0f9f8] text-[#0b5650] flex items-center justify-center text-xs">💊</span>
+                    <span>Medicine Catalog</span>
+                  </h3>
+                  <p class="text-[11px] text-slate-400">Search formula, filter category, and click &ldquo;+ Add to
+                    Rx&rdquo;</p>
+                </div>
+
+                <!-- Category Filters Dropdown / Quick Links -->
+                <button type="button" onclick="switchTab('catalog')"
+                  class="text-xs font-bold text-[#0b5650] hover:underline">
+                  Full Catalog &rarr;
+                </button>
+              </div>
+
+              <!-- Category Filter Pills Bar -->
+              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                <button type="button" onclick="filterDeskCategory('all', this)"
+                  class="cat-pill active px-3 py-1 rounded-lg font-bold bg-[#0b5650] text-white shadow-xs transition">
+                  All
+                </button>
+                <button type="button" onclick="filterDeskCategory('topical', this)"
+                  class="cat-pill px-3 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                  Topical
+                </button>
+                <button type="button" onclick="filterDeskCategory('oral', this)"
+                  class="cat-pill px-3 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                  Oral
+                </button>
+                <button type="button" onclick="filterDeskCategory('antifungal', this)"
+                  class="cat-pill px-3 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                  Antifungal
+                </button>
+                <button type="button" onclick="filterDeskCategory('antibiotic', this)"
+                  class="cat-pill px-3 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                  Antibiotic
+                </button>
+                <button type="button" onclick="filterDeskCategory('steroid', this)"
+                  class="cat-pill px-3 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                  Steroid
+                </button>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="relative">
+                <svg class="absolute left-3.5 top-3 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input id="desk-catalog-search" type="text" placeholder="Search medicine formula, brand, or category…"
+                  class="form-input pl-10 text-xs font-medium" oninput="filterDeskCatalog(this.value)">
+              </div>
+
+              <!-- Medicines Cards Grid (Scrollable) -->
+              <div id="desk-medicines-list" class="max-h-[310px] overflow-y-auto space-y-2 pr-1">
+                {% for med in medicines %}
+                <div
+                  class="desk-med-card bg-slate-50/70 border border-slate-200 rounded-xl p-3 hover:bg-white hover:border-[#0b5650] hover:shadow-sm transition"
+                  data-name="{{ med.name|lower }}" data-cat="{{ med.category|lower }}">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3 min-w-0">
+                      <!-- Medicine Icon Badge -->
+                      <div
+                        class="w-9 h-9 rounded-xl bg-white border border-slate-200 text-[#0b5650] flex items-center justify-center shrink-0 shadow-2xs font-black text-sm">
+                        {% if 'cream' in med.name|lower or 'ointment' in med.name|lower %}
+                        🧴
+                        {% elif 'tablet' in med.name|lower %}
+                        💊
+                        {% elif 'capsule' in med.name|lower %}
+                        💊
+                        {% elif 'shampoo' in med.name|lower or 'lotion' in med.name|lower %}
+                        🧴
+                        {% else %}
+                        🩺
+                        {% endif %}
+                      </div>
+
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <h4 class="text-xs font-bold text-slate-900 truncate leading-snug">{{ med.name }}</h4>
+                          <span
+                            class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f0f9f8] text-[#0b5650] border border-[#c5e4e0]">
+                            {{ med.category or 'General' }}
+                          </span>
+                        </div>
+
+                        <div class="text-[11px] text-slate-600 mt-1 flex items-center gap-2 flex-wrap">
+                          <span>Dose: <strong>{{ med.default_dosage or '—' }}</strong></span>
+                          <span class="text-slate-300">•</span>
+                          <span>Freq: <strong>{{ med.default_frequency or '—' }}</strong></span>
+                          <span class="text-slate-300">•</span>
+                          <span>Duration: <strong>{{ med.default_duration or '—' }}</strong></span>
+                        </div>
+
+                        {% if med.urdu_instructions %}
+                        <div class="mt-1.5 text-right bg-[#d7ebe8]/50 border border-[#c5e4e0] rounded-md px-2 py-0.5">
+                          <span class="urdu-text text-xs text-[#0b5650] font-bold">{{ med.urdu_instructions }}</span>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+
+                    <!-- Add Button -->
+                    <button type="button"
+                      onclick='addToRx({{ med.id }}, {{ med.name|tojson }}, {{ med.default_dosage|tojson }}, {{ med.default_frequency|tojson }}, {{ med.default_duration|tojson }}, {{ med.urdu_instructions|tojson }})'
+                      class="px-3 py-1.5 bg-[#0b5650] hover:bg-[#0e6e66] text-white text-xs font-bold rounded-lg transition shadow-2xs flex items-center gap-1 shrink-0">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 4v16m8-8H4" />
+                      </svg>
+                      <span>Add</span>
+                    </button>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Card 2: Consultation Details & Clinical Observations -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-card p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                  <span
+                    class="w-6 h-6 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-xs">📝</span>
+                  <span>Consultation Details</span>
+                </h3>
+                <span class="text-[11px] font-bold text-slate-400">Visit Findings</span>
+              </div>
+
+              <!-- Hidden Form Fields -->
+              <input type="hidden" id="rx-patient-id" value="">
+              <input type="hidden" id="rx-prescription-id" value="">
+              <input type="hidden" id="rx-is-new-visit" value="true">
+              <input type="hidden" id="rx-patient-name" value="">
+              <input type="hidden" id="rx-patient-phone" value="">
+              <input type="hidden" id="rx-patient-age" value="">
+              <input type="hidden" id="rx-patient-gender" value="">
+              <input type="hidden" id="rx-patient-allergies" value="">
+
+              <!-- 4-Grid Inputs for Symptoms, Examination, Diagnosis, Follow-up -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="form-label flex items-center gap-1 text-slate-700">
+                    <span>Symptoms &amp; Duration</span>
+                  </label>
+                  <textarea id="rx-complaints" rows="2"
+                    placeholder="e.g. Itching, redness, facial acne breakouts for 2 weeks…" class="form-input text-xs"
+                    oninput="updateLivePrescriptionSlip()"></textarea>
+                </div>
+
+                <div>
+                  <label class="form-label flex items-center gap-1 text-slate-700">
+                    <span>Clinical Observations &amp; Examination</span>
+                  </label>
+                  <textarea id="rx-examination" rows="2"
+                    placeholder="e.g. Erythematous papulopustular lesions, greasy scaling…" class="form-input text-xs"
+                    oninput="updateLivePrescriptionSlip()"></textarea>
+                </div>
+
+                <div>
+                  <label class="form-label flex items-center gap-1 text-[#0b5650]">
+                    <span>Clinical Diagnosis <span class="text-rose-500">*</span></span>
+                  </label>
+                  <input id="rx-diagnosis" type="text"
+                    placeholder="e.g. Acne Vulgaris (Grade II), Seborrheic Dermatitis…"
+                    class="form-input text-xs font-bold text-slate-800 border-[#0b5650]/40"
+                    oninput="updateLivePrescriptionSlip()">
+                </div>
+
+                <div>
+                  <label class="form-label text-slate-700">Follow-up Interval</label>
+                  <select id="rx-follow-up" class="form-input text-xs font-semibold"
+                    onchange="updateLivePrescriptionSlip()">
+                    <option value="After 1 Week">After 1 Week</option>
+                    <option value="After 2 Weeks" selected>After 2 Weeks</option>
+                    <option value="After 3 Weeks">After 3 Weeks</option>
+                    <option value="After 1 Month">After 1 Month</option>
+                    <option value="As Needed / SOS">As Needed / SOS</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Treatment Instructions & Doctor Notes -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                <div>
+                  <label class="form-label">Treatment Advice &amp; Recommendations</label>
+                  <textarea id="rx-treatment-plan" rows="2"
+                    placeholder="e.g. Apply gentle cleanser twice daily. Avoid hot water and sun exposure…"
+                    class="form-input text-xs" oninput="updateLivePrescriptionSlip()"></textarea>
+                </div>
+                <div>
+                  <label class="form-label">Doctor's Confidential Notes</label>
+                  <textarea id="rx-notes" rows="2" placeholder="Private observations (not printed on patient slip)…"
+                    class="form-input text-xs"></textarea>
+                </div>
+              </div>
+
+              <!-- Tip Callout Banner -->
+              <div
+                class="bg-[#f0f9f8]/70 border border-[#c5e4e0] rounded-xl p-2.5 flex items-center gap-2 text-xs text-[#0b5650]">
+                <span class="text-sm">💡</span>
+                <span><strong>Clinical Tip:</strong> You can review the patient's past history and previous medications
+                  on the right side before finalizing.</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Added Medications In-Progress List -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-card p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                    <span
+                      class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs">📋</span>
+                    <span>Prescribed Medications in this Visit</span>
+                  </h3>
+                  <span id="rx-count-badge"
+                    class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-200"
+                    style="display:none;">
+                    0 items
+                  </span>
+                </div>
+                <button type="button" onclick="clearRx()"
+                  class="text-xs text-slate-400 hover:text-rose-600 font-bold transition">
+                  Clear All
+                </button>
+              </div>
+
+              <!-- Empty State -->
+              <div id="rx-empty"
+                class="text-center py-6 bg-slate-50/60 rounded-xl border border-dashed border-slate-200 text-slate-400">
+                <p class="text-xs font-bold text-slate-600">No medications added yet</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Click &ldquo;+ Add&rdquo; on any medicine above to include
+                  it in this consultation.</p>
+              </div>
+
+              <!-- Items Container -->
+              <div id="rx-items-container" class="space-y-2"></div>
+            </div>
+
+          </div>
+
+
+          <!-- ── RIGHT PANEL: Live Prescription Card Preview (Hair Skin Plus Design) ── -->
+          <div
+            class="w-[380px] flex-shrink-0 flex flex-col h-full rounded-2xl border border-slate-200/90 shadow-card overflow-hidden"
+            style="background:#f3f4f5;">
+
+            <!-- Preview Header Bar -->
+            <div class="px-3 py-2 flex items-center justify-between shrink-0" style="background:#0b5650;">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm font-black leading-none" style="color:#e0a030;">Rx</span>
+                <div>
+                  <h3 class="text-[10px] font-extrabold tracking-wide uppercase text-white leading-tight">Prescription
+                    Sheet</h3>
+                  <p class="text-[8px]" style="color:#d7ebe8;">Live Patient Preview</p>
+                </div>
+              </div>
+              <button type="button" onclick="triggerPrintSlip()"
+                class="px-2.5 py-1 text-[#e0a030] hover:text-white rounded-lg text-[10px] font-bold transition flex items-center gap-1 shadow-sm"
+                style="background:#08423d; border:1px solid #e0a03040;"
+                onmouseover="this.style.background='#0e6e66'; this.style.color='#ffffff';"
+                onmouseout="this.style.background='#08423d'; this.style.color='#e0a030';">
+                <svg class="w-3 h-3 text-[#e0a030]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Print</span>
+              </button>
+            </div>
+
+            <!-- Scrollable Card Preview -->
+            <div class="flex-1 overflow-y-auto" style="background:#e0e0e1; padding:8px;">
+              <!-- Card Shell (Matching New Hair Skin Plus Report Design) -->
+              <div
+                style="background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.13); font-family:'Poppins',Arial,sans-serif; font-size:6pt; color:#1a1a1a;">
+
+                <!-- ================= HEADER SECTION (Compact Preview) ================= -->
+                <div style="position:relative; flex-shrink:0;">
+                  <div style="display:flex; height:68px;">
+                    <!-- Logo Box (Left) -->
+                    <div
+                      style="width:90px; flex-shrink:0; border-right:1.5px solid #0b5650; padding:4px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#ffffff;">
+                      <img src="/static/stamp.png"
+                        style="max-height:58px; max-width:82px; width:auto; height:auto; object-fit:contain; display:block;"
+                        alt="Hair Skin Plus Logo" onerror="this.style.display='none'">
+                    </div>
+
+                    <!-- Doctor Info (Right) -->
+                    <div
+                      style="flex:1; background:#0b5650; color:#ffffff; text-align:center; display:flex; flex-direction:column; justify-content:center; padding:3px 6px;">
+                      <h1
+                        style="font-family:'Playfair Display',Georgia,serif; font-style:italic; font-weight:700; font-size:14pt; line-height:1; color:#ffffff; margin:0 0 1px;">
+                        Hair Skin Plus</h1>
+                      <div style="margin:1px 0;">
+                        <span
+                          style="font-family:'Libre Baskerville',Georgia,serif; font-weight:700; font-size:4.5pt; padding:1px 6px; border-radius:9999px; color:#0b5650; background:#d7ebe8; display:inline-block;">Consultant
+                          Dermatologist</span>
+                      </div>
+                      <h2
+                        style="font-family:'Libre Baskerville',Georgia,serif; font-weight:700; font-size:7.5pt; line-height:1.1; color:#fecdd3; margin:1px 0 0;">
+                        Dr. Seyab Ur Rahman</h2>
+                      <p style="font-size:4.5pt; color:#f5f5f5; margin:1px 0 0; line-height:1.2;">
+                        MBBS, FCPS (Dermatology) &bull; <span style="color:#99f6e4;">Ex Reg CMH Peshawar</span>
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Gold divider -->
+                  <div style="height:2px; background:#e0a030; width:100%;"></div>
+                </div>
+
+                <!-- ================= PATIENT BAR (Compact Preview) ================= -->
+                <div
+                  style="margin:4px 6px 3px; padding:3px 6px; border:1.2px solid #0b5650; border-radius:6px; background:#ffffff; font-family:'Libre Baskerville',Georgia,serif; font-size:5.5pt; color:#0b5650;">
+                  <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:1px 6px; line-height:1.6;">
+                    <p style="margin:0;"><span style="color:#0b5650;font-weight:700;">Patient: </span><span
+                        id="preview-patient-name"
+                        style="font-weight:700;color:#1a1a1a;font-family:'Poppins',Arial,sans-serif;">[ Patient Name
+                        ]</span></p>
+                    <p style="margin:0;"><span style="color:#0b5650;font-weight:700;">ID: </span><span
+                        id="preview-patient-id" style="font-weight:700;font-family:monospace;color:#1a1a1a;">—</span>
+                    </p>
+                    <p style="margin:0;"><span style="color:#0b5650;font-weight:700;">Age/Sex: </span><span
+                        id="preview-patient-meta" style="color:#333;font-family:'Poppins',Arial,sans-serif;">—</span>
+                    </p>
+                    <p style="margin:0;"><span style="color:#0b5650;font-weight:700;">Visit# </span><span
+                        id="preview-visit-no" style="font-weight:700;color:#059669;">1</span></p>
+                    <p style="margin:0;"><span style="color:#0b5650;font-weight:700;">Phone: </span><span
+                        id="preview-patient-phone" style="color:#333;font-family:'Poppins',Arial,sans-serif;">—</span>
+                    </p>
+                    <p style="margin:0;"><span style="color:#0b5650;font-weight:700;">Date: </span><span
+                        id="preview-date" style="color:#333;font-family:'Poppins',Arial,sans-serif;">Today</span></p>
+                  </div>
+                  <p
+                    style="border-top:1px dashed #cbd5e1; padding-top:2px; margin-top:2px; font-size:5.5pt; line-height:1.4;">
+                    <span style="color:#0b5650;font-weight:700;">Dx: </span>
+                    <span id="preview-diagnosis"
+                      style="font-weight:700;color:#0b5650;font-family:'Poppins',Arial,sans-serif;">Pending
+                      Diagnosis</span>
+                  </p>
+                </div>
+
+                <!-- Divider -->
+                <div style="height:1px; background:#2a8f86; margin:0 6px;"></div>
+
+                <!-- ================= CLINICAL BODY (Compact Preview) ================= -->
+                <div style="display:flex; margin:3px 6px; gap:6px; min-height:140px; position:relative;">
+
+                  <!-- Left Column: Clinical Notes & Investigations -->
+                  <div
+                    style="width:78px; flex-shrink:0; border-right:1px solid #e2e8f0; padding-right:4px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                      <span
+                        style="background:#0b5650; color:#fff; border-radius:4px; font-size:4.5pt; font-weight:700; padding:1px 4px; display:inline-block;">Clinical
+                        Record:</span>
+                      <div class="ruled-lines-compact" style="width:100%; height:45px; margin-top:2px;"></div>
+                    </div>
+
+                    <div style="margin-top:4px;">
+                      <span
+                        style="background:#0b5650; color:#fff; border-radius:4px; font-size:4.5pt; font-weight:700; padding:1px 4px; display:inline-block;">Investigations:</span>
+                      <div class="ruled-lines-compact" style="width:100%; height:45px; margin-top:2px;"></div>
+                    </div>
+
+                    <div style="margin-top:2px;">
+                      <img src="/static/stamp.png" style="max-height:22px; max-width:32px; object-fit:contain;"
+                        alt="Stamp" onerror="this.style.display='none'">
+                    </div>
+                  </div>
+
+                  <!-- Right Column: Rx Table -->
+                  <div
+                    style="flex:1; min-width:0; overflow:hidden; display:flex; flex-direction:column; padding-left:2px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+                      <div
+                        style="font-family:'Libre Baskerville',Georgia,serif; font-weight:700; font-size:14pt; line-height:1; color:#0b5650;">
+                        R<span style="font-size:10pt; position:relative; left:-1px;">X</span>
+                      </div>
+                      <span
+                        style="font-size:4.5pt; font-weight:700; color:#0b5650; text-transform:uppercase; letter-spacing:0.05em;">Prescription</span>
+                    </div>
+
+                    <table style="width:100%; border-collapse:collapse; font-size:5.5pt; table-layout:fixed;">
+                      <thead>
+                        <tr style="background:#0b5650; color:#fff; text-align:left;">
+                          <th style="padding:2px 3px; font-weight:600; width:14px; text-align:center;">#</th>
+                          <th style="padding:2px 4px; font-weight:600; width:auto; word-break:break-word;">Medicine
+                            &amp; Instructions</th>
+                          <th style="padding:2px 3px; font-weight:600; width:68px; word-break:break-word;">Dosage</th>
+                        </tr>
+                      </thead>
+                      <tbody id="preview-medicines-tbody">
+                        <tr>
+                          <td colspan="3"
+                            style="padding:8px 4px; text-align:center; color:#94a3b8; font-style:italic; font-size:5.5pt;">
+                            No medicines prescribed yet</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <p
+                      style="margin-top:4px; font-size:6.5pt; color:#404040; font-family:'Noto Nastaliq Urdu','Noto Sans Arabic',serif; direction:rtl; text-align:right; line-height:1.7;">
+                      نوٹ: دوا باقاعدگی سے استعمال کریں۔
+                    </p>
+
+                    <!-- Doctor Signature -->
+                    <div style="margin-top:6px; display:flex; justify-content:flex-end;">
+                      <div style="text-align:center; min-width:80px;">
+                        <img src="/static/signature.png"
+                          style="max-height:18px; max-width:60px; object-fit:contain; display:block; margin:0 auto;"
+                          alt="Sig" onerror="this.style.display='none'">
+                        <div style="border-top:1px solid #0b5650; padding-top:1px; margin-top:1px;">
+                          <p
+                            style="font-family:'Libre Baskerville',Georgia,serif; font-size:5.5pt; font-weight:700; color:#0b5650; margin:0;">
+                            Dr. Seyab Ur Rahman</p>
+                          <p style="font-size:4.5pt; color:#64748b; margin:0;">Consultant Dermatologist</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- ================= SERVICES AVAILABLE (Compact Preview) ================= -->
+                <div style="margin:2px 6px; position:relative; padding-top:4px;">
+                  <div style="height:1px; background:#0b5650; width:100%; margin-bottom:4px;"></div>
+                  <span
+                    style="background:#0b5650; color:#fff; border-radius:4px; font-size:4.5pt; font-weight:700; padding:1px 6px; position:absolute; top:-3px; left:50%; transform:translateX(-50%);">Services
+                    Available</span>
+                  <div
+                    style="background:#d7ebe8; border:1px solid #c5e0dc; border-radius:6px; padding:3px 4px; text-align:center; font-size:4.5pt; color:#334155; line-height:1.3;">
+                    Laser Hair Removal &bull; Hair Transplant &bull; Hair Exosome &bull; PRP Botox &bull; Microneedling
+                    &bull; Hydrafacial
+                  </div>
+                </div>
+
+                <!-- ================= FOOTER (Compact Preview) ================= -->
+                <div style="position:relative; flex-shrink:0; margin-top:3px;">
+                  <div
+                    style="background:#0b5650; color:#ffffff; height:36px; padding:0 8px; display:flex; align-items:center; justify-content:space-between; position:relative; overflow:hidden; font-size:4.5pt;">
+                    <div style="max-width:180px; line-height:1.2; color:#f5f5f5;">
+                      New Samad Bldg, Dabgari Garden Peshawar
+                    </div>
+                    <div style="text-align:right; line-height:1.2; color:#f5f5f5; padding-right:16px;">
+                      0301-5888800<br>@drseyab_dermatologist
+                    </div>
+                    <!-- Decorative Gold Pattern -->
+                    <div
+                      style="position:absolute; right:0; top:0; bottom:0; width:30px; pointer-events:none; opacity:0.85;">
+                      <svg viewBox="0 0 100 100" style="width:100%; height:100%;" preserveAspectRatio="none">
+                        <polygon points="40,0 100,0 100,100" fill="#e0a030" />
+                        <polygon points="0,100 100,0 100,100" fill="#e0a030" opacity="0.4" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div style="height:2px; background:#e0a030; width:100%;"></div>
+                </div>
+
+              </div><!-- end card shell -->
+            </div><!-- end scroll area -->
+
+          </div>
+
+        </div>
+
+        <!-- ── BOTTOM PERSISTENT ACTION BAR ── -->
+        <footer
+          class="h-16 px-6 bg-white border-t border-slate-200/90 flex items-center justify-between shrink-0 shadow-lg z-20">
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="clearRx()"
+              class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-200">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Clear Form</span>
+            </button>
+            <span id="save-status-indicator"
+              class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200">
+              Ready for Consultation
+            </span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="savePrescriptionOnly()" id="btn-save-only"
+              class="px-5 py-2.5 bg-[#052e2a] hover:bg-[#052e2a] text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#e0a030]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2">
+                <path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              <span>Save Consultation</span>
+            </button>
+
+            <button type="button" onclick="saveAndPrintPrescriptionSheet()" id="btn-save-print"
+              class="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl text-xs font-extrabold transition shadow-md shadow-emerald-900/20 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span>Save &amp; Print (A4 Sheet)</span>
+            </button>
+          </div>
+        </footer>
+
+      </section>
+
+
+      <!-- ═════════════════════════════════════════════════════
+         TAB VIEW 2: PATIENT INTAKE & MEDICAL HISTORY VERIFICATION
+      ══════════════════════════════════════════════════════════ -->
+      <section id="tab-view-intake" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+
+        <!-- Intake Top Header -->
+        <header class="h-14 px-6 bg-white border-b border-slate-200/80 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs font-mono font-bold text-slate-400">Dashboard &gt;</span>
+            <h2 class="text-sm font-extrabold text-slate-900">Patient Intake &amp; Medical History</h2>
+          </div>
+          <button type="button" onclick="prepareNewPatientIntake()"
+            class="px-3.5 py-1.5 bg-[#0b5650] hover:bg-[#0e6e66] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Register New Walk-in Patient</span>
+          </button>
+        </header>
+
+        <!-- Intake Main Content (Scrollable) -->
+        <div class="flex-1 overflow-y-auto p-6 max-w-5xl mx-auto w-full space-y-6">
+
+          <!-- Prominent Search Verification Box -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-card space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+                Find Patient in Clinic Records
+              </label>
+              <span class="text-[11px] text-slate-400">Search by Patient ID (e.g. HSP-0002), Phone (e.g. 031268939), or
+                Name</span>
+            </div>
+            <div class="relative flex items-center gap-2">
+              <div class="relative flex-1">
+                <svg class="absolute left-3.5 top-3 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input id="intake-search-input" type="text" autocomplete="off"
+                  placeholder="Search by Patient ID (e.g. HSP-0002), Phone (e.g. 031268939), or Name…"
+                  class="form-input pl-10 pr-24 py-2.5 text-sm font-semibold" oninput="handleIntakeInput(this.value)">
+                <div id="intake-spinner" class="hidden absolute right-3 top-3 text-[#0b5650]">
+                  <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                  </svg>
+                </div>
+              </div>
+              <button type="button" onclick="performIntakeLookup()"
+                class="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Verify Patient</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Verification Result Container -->
+          <div id="intake-result-area">
+
+            <!-- Default Idle State -->
+            <div id="intake-state-idle"
+              class="bg-white rounded-2xl border border-slate-200/90 p-10 text-center space-y-3 shadow-card">
+              <div
+                class="w-14 h-14 bg-[#f0f9f8] text-[#0b5650] rounded-2xl flex items-center justify-center mx-auto shadow-2xs">
+                <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path
+                    d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
+                </svg>
+              </div>
+              <h3 class="text-sm font-extrabold text-slate-800">Check Patient Medical History Before Prescribing</h3>
+              <p class="text-xs text-slate-500 max-w-md mx-auto">
+                Type the patient's phone number, name, or ID above. If the patient is returning, their complete medical
+                record, previous diagnoses, and past prescriptions will appear immediately.
+              </p>
+              <div class="pt-3">
+                <button type="button" onclick="prepareNewPatientIntake()"
+                  class="text-xs text-[#0b5650] font-bold hover:underline">
+                  Or register a walk-in new patient directly &rarr;
+                </button>
+              </div>
+            </div>
+
+            <!-- Case 1: Patient Found (Mint Banner Design from User Image) -->
+            <div id="intake-state-found" class="hidden space-y-5 fade-in">
+
+              <!-- Patient Found Banner -->
+              <div class="bg-[#e8f5e9] border border-emerald-200 rounded-2xl p-5 space-y-4 shadow-sm">
+
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                  <div class="flex items-center gap-3.5">
+                    <div
+                      class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">
+                      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h3 id="found-p-name" class="text-base font-extrabold text-slate-900">[ Patient Name ]</h3>
+                        <span id="found-p-code"
+                          class="text-xs font-mono font-bold bg-[#0b5650] text-white px-2 py-0.5 rounded-full">
+                          HSP-0000
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-3 text-xs text-slate-600 mt-1 flex-wrap">
+                        <span id="found-p-phone">—</span>
+                        <span class="text-slate-300">|</span>
+                        <span id="found-p-meta">—</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 4 Stat Tiles in Mint Banner -->
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full sm:w-auto">
+                    <!-- Stat 1 -->
+                    <div class="bg-white/80 rounded-xl p-2.5 border border-emerald-200 text-center min-w-[90px]">
+                      <div class="text-[9px] font-bold uppercase text-slate-400">Total Visits</div>
+                      <div id="found-stat-visits" class="text-sm font-extrabold text-slate-800">2</div>
+                    </div>
+                    <!-- Stat 2 -->
+                    <div class="bg-white/80 rounded-xl p-2.5 border border-emerald-200 text-center min-w-[90px]">
+                      <div class="text-[9px] font-bold uppercase text-slate-400">Last Visit</div>
+                      <div id="found-stat-last-visit" class="text-xs font-bold text-slate-800">07 Nov 2026</div>
+                    </div>
+                    <!-- Stat 3 -->
+                    <div class="bg-white/80 rounded-xl p-2.5 border border-emerald-200 text-center min-w-[90px]">
+                      <div class="text-[9px] font-bold uppercase text-slate-400">Allergies</div>
+                      <div id="found-stat-allergies" class="text-xs font-bold text-emerald-700">No Allergies</div>
+                    </div>
+                    <!-- Stat 4 -->
+                    <div class="bg-white/80 rounded-xl p-2.5 border border-emerald-200 text-center min-w-[90px]">
+                      <div class="text-[9px] font-bold uppercase text-slate-400">History</div>
+                      <div class="text-xs font-bold text-[#0b5650]">Available</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Past Diagnoses Badges Strip -->
+                <div class="pt-3 border-t border-emerald-200/70 flex items-center justify-between gap-3 flex-wrap">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[11px] font-extrabold uppercase text-slate-600 tracking-wider">Past
+                      Diagnoses:</span>
+                    <div id="found-past-diagnoses-list" class="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#d7ebe8] text-[#0b5650] border border-[#c5e4e0]">Acne</span>
+                      <span
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#d7ebe8] text-[#0b5650] border border-[#c5e4e0]">Seborrheic
+                        Dermatitis</span>
+                    </div>
+                  </div>
+
+                  <!-- Quick Action Buttons on Found Banner -->
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="repeatHistoryRxAndOpenDesk()"
+                      class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs">
+                      <svg class="w-3.5 h-3.5 text-[#0b5650]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>Repeat Last Rx</span>
+                    </button>
+                    <button type="button" onclick="startNewConsultationForFoundPatient()"
+                      class="px-4 py-1.5 bg-[#052e2a] hover:bg-[#052e2a] text-white rounded-xl text-xs font-extrabold transition shadow-sm flex items-center gap-1.5">
+                      <span>Start New Consultation &rarr;</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Patient Medical History Chronological Timeline -->
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-card p-5 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-7 h-7 rounded-lg bg-[#f0f9f8] text-[#0b5650] flex items-center justify-center font-bold text-xs">📋</span>
+                    <div>
+                      <h4 class="text-sm font-extrabold text-slate-900">Patient Medical History Timeline</h4>
+                      <p class="text-[11px] text-slate-400">Complete chronological record of all previous consultations
+                        &amp; treatments</p>
+                    </div>
+                  </div>
+                  <button type="button" onclick="openHistorySlideover()"
+                    class="text-xs font-bold text-[#0b5650] hover:underline">
+                    View Full Drawer &rarr;
+                  </button>
+                </div>
+
+                <!-- Timeline Container -->
+                <div id="found-p-history-container" class="space-y-3"></div>
+              </div>
+
+            </div>
+
+            <!-- Case 2: Patient NOT Found (New Registration) -->
+            <div id="intake-state-notfound"
+              class="hidden bg-white rounded-2xl border-2 border-dashed border-slate-300 p-6 space-y-4 shadow-card fade-in">
+              <div class="flex items-start gap-3">
+                <div
+                  class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 font-bold">
+                  !
+                </div>
+                <div>
+                  <span
+                    class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-900">
+                    New Patient — No Prior History Found
+                  </span>
+                  <h3 class="text-sm font-bold text-slate-800 mt-1">Register New Patient &amp; Start First Consultation
+                  </h3>
+                  <p class="text-xs text-slate-500">Enter patient details below. A unique Patient ID will be generated
+                    automatically.</p>
+                </div>
+              </div>
+
+              <!-- New Patient Demographics Inputs -->
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100">
+                <div class="md:col-span-2">
+                  <label class="form-label">Patient Full Name <span class="text-rose-500">*</span></label>
+                  <input id="new-p-name" type="text" placeholder="e.g. Ayesha Khan"
+                    class="form-input font-bold text-slate-900">
+                </div>
+                <div>
+                  <label class="form-label">Phone / Mobile</label>
+                  <input id="new-p-phone" type="text" placeholder="0300-1234567" class="form-input font-semibold">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="form-label">Age</label>
+                    <input id="new-p-age" type="text" placeholder="28" class="form-input">
+                  </div>
+                  <div>
+                    <label class="form-label">Gender</label>
+                    <select id="new-p-gender" class="form-input">
+                      <option value="">—</option>
+                      <option value="Female">Female</option>
+                      <option value="Male">Male</option>
+                      <option value="Child">Child</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="md:col-span-2">
+                  <label class="form-label text-rose-600">Known Allergies (Crucial for Prescribing)</label>
+                  <input id="new-p-allergies" type="text" placeholder="e.g. Penicillin, Sulfa, Aspirin (or None)"
+                    class="form-input text-rose-700">
+                </div>
+                <div class="md:col-span-2">
+                  <label class="form-label">Relevant Medical Background / Chronic Conditions</label>
+                  <input id="new-p-medical-history" type="text"
+                    placeholder="e.g. PCOS, Diabetes, Hypothyroidism, Eczema" class="form-input">
+                </div>
+              </div>
+
+              <div class="flex justify-end pt-3 border-t border-slate-100">
+                <button type="button" onclick="registerAndProceedToDesk()"
+                  class="px-5 py-2.5 bg-[#052e2a] hover:bg-[#052e2a] text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-2">
+                  <span>Register &amp; Open Prescription Desk</span>
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ═════════════════════════════════════════════════════
+         TAB VIEW 3: MASTER PATIENT DIRECTORY & RECORDS
+      ══════════════════════════════════════════════════════════ -->
+      <section id="tab-view-records" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+
+        <header class="h-14 px-6 bg-white border-b border-slate-200/80 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs font-mono font-bold text-slate-400">Dashboard &gt;</span>
+            <h2 class="text-sm font-extrabold text-slate-900">Master Patient Records</h2>
+          </div>
+          <button type="button" onclick="switchTab('intake')"
+            class="px-3.5 py-1.5 bg-[#0b5650] hover:bg-[#0e6e66] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <span>+ New Patient Intake</span>
+          </button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 max-w-6xl mx-auto w-full space-y-4">
+
+          <!-- Filters & Search Toolbar -->
+          <div
+            class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-card flex items-center gap-3 flex-wrap">
+            <div class="relative flex-1 min-w-[260px]">
+              <svg class="absolute left-3.5 top-3 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input id="directory-search-input" type="text"
+                placeholder="Search registered patients by Name, Patient ID, Phone, or Diagnosis…"
+                class="form-input pl-10 text-xs font-medium" oninput="handleDirectorySearch(this.value)">
+            </div>
+
+            <div class="flex items-center gap-2">
+              <select id="directory-gender-filter" class="form-input text-xs w-36 font-semibold"
+                onchange="loadAllPatientsDirectory()">
+                <option value="">All Genders</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+
+              <button type="button" onclick="loadAllPatientsDirectory()"
+                class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition border border-slate-200">
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Patients Table / Cards Container -->
+          <div id="directory-list-container" class="space-y-2.5"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ═════════════════════════════════════════════════════
+         TAB VIEW 4: MEDICINE CATALOG & DRUG FORMULARY
+      ══════════════════════════════════════════════════════════ -->
+      <section id="tab-view-catalog" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+
+        <header class="h-14 px-6 bg-white border-b border-slate-200/80 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs font-mono font-bold text-slate-400">Dashboard &gt;</span>
+            <h2 class="text-sm font-extrabold text-slate-900">Medicine Catalog &amp; Formulations</h2>
+          </div>
+          <button type="button" onclick="toggleAddPanel()"
+            class="px-3.5 py-1.5 bg-[#0b5650] hover:bg-[#0e6e66] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <span>+ Add New Formulation</span>
+          </button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 max-w-6xl mx-auto w-full space-y-4">
+
+          <!-- Add Medicine Panel (Collapsible) -->
+          <div id="add-panel" class="hidden bg-white rounded-2xl border border-slate-200/90 shadow-card p-5 space-y-3">
+            <h3 class="text-sm font-extrabold text-slate-900">Add New Medicine to Catalog</h3>
+            <form action="{{ url_for('add_medicine') }}" method="POST" class="space-y-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="form-label">Medicine Name &amp; Strength <span class="text-rose-500">*</span></label>
+                  <input type="text" name="name" required placeholder="e.g. Mupirocin 2% Ointment"
+                    class="form-input font-bold">
+                </div>
+                <div>
+                  <label class="form-label">Category</label>
+                  <input type="text" name="category" placeholder="e.g. Topical Antibiotic, Retinoid, Antifungal"
+                    class="form-input">
+                </div>
+                <div>
+                  <label class="form-label">Default Dosage</label>
+                  <input type="text" name="default_dosage" placeholder="e.g. Apply thinly" class="form-input">
+                </div>
+                <div>
+                  <label class="form-label">Default Frequency</label>
+                  <input type="text" name="default_frequency" placeholder="e.g. Twice Daily" class="form-input">
+                </div>
+                <div>
+                  <label class="form-label">Default Duration</label>
+                  <input type="text" name="default_duration" placeholder="e.g. 7 Days" class="form-input">
+                </div>
+                <div>
+                  <label class="form-label">Urdu Instructions</label>
+                  <input type="text" name="urdu_instructions" placeholder="e.g. متاثرہ جگہ پر لگائیں"
+                    class="form-input urdu-text font-bold">
+                </div>
+              </div>
+              <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="toggleAddPanel()"
+                  class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                <button type="submit"
+                  class="px-5 py-2 bg-[#0b5650] hover:bg-[#0e6e66] text-white text-xs font-bold rounded-xl shadow-sm">Save
+                  to Catalog</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Catalog Cards List -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for med in medicines %}
+            <div
+              class="bg-white rounded-2xl border border-slate-200/90 shadow-card p-4 space-y-2 hover:border-[#0b5650] transition">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span
+                    class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#f0f9f8] text-[#0b5650] border border-[#c5e4e0] uppercase tracking-wider">
+                    {{ med.category or 'General' }}
+                  </span>
+                  <h4 class="text-sm font-extrabold text-slate-900 mt-1">{{ med.name }}</h4>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="openEdit({{ med.id }})"
+                    class="p-1.5 text-slate-400 hover:text-[#0b5650] transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                  <form action="{{ url_for('delete_medicine', id=med.id) }}" method="POST"
+                    onsubmit="return confirm('Delete {{ med.name }}?');">
+                    <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-600 transition">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="text-xs text-slate-600 space-y-0.5">
+                <div>Dose: <strong>{{ med.default_dosage or '—' }}</strong> | Freq: <strong>{{ med.default_frequency or
+                    '—' }}</strong> | Duration: <strong>{{ med.default_duration or '—' }}</strong></div>
+              </div>
+
+              {% if med.urdu_instructions %}
+              <div class="bg-[#d7ebe8]/50 border border-[#c5e4e0] rounded-lg p-2 text-right">
+                <span class="urdu-text text-xs text-[#0b5650] font-bold">{{ med.urdu_instructions }}</span>
+              </div>
+              {% endif %}
+
+              <!-- Inline Edit Form -->
+              <div id="edit-{{ med.id }}" class="hidden pt-3 border-t border-slate-100 mt-2 space-y-2">
+                <form action="{{ url_for('edit_medicine', id=med.id) }}" method="POST" class="space-y-2">
+                  <input type="text" name="name" value="{{ med.name }}" required class="form-input text-xs font-bold">
+                  <div class="grid grid-cols-2 gap-2">
+                    <input type="text" name="category" value="{{ med.category }}" placeholder="Category"
+                      class="form-input text-xs">
+                    <input type="text" name="default_dosage" value="{{ med.default_dosage }}" placeholder="Dosage"
+                      class="form-input text-xs">
+                    <input type="text" name="default_frequency" value="{{ med.default_frequency }}"
+                      placeholder="Frequency" class="form-input text-xs">
+                    <input type="text" name="default_duration" value="{{ med.default_duration }}" placeholder="Duration"
+                      class="form-input text-xs">
+                  </div>
+                  <input type="text" name="urdu_instructions" value="{{ med.urdu_instructions }}"
+                    placeholder="Urdu instructions" class="form-input urdu-text text-xs">
+                  <div class="flex justify-end gap-1.5 pt-1">
+                    <button type="button" onclick="closeEdit({{ med.id }})"
+                      class="px-2.5 py-1 bg-slate-100 text-slate-700 text-xxs font-bold rounded-lg">Cancel</button>
+                    <button type="submit"
+                      class="px-3 py-1 bg-[#0b5650] text-white text-xxs font-bold rounded-lg">Update</button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+            {% endfor %}
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- ═════════════════════════════════════════════════════
+     SLIDE-OVER HISTORY DRAWER (During Active Diagnosis)
+  ══════════════════════════════════════════════════════════ -->
+  <div id="history-slideover" class="hidden fixed inset-0 z-50 bg-[#08423d]/50 backdrop-blur-xs flex justify-end">
+    <div class="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col border-l border-slate-200 animate-slide-left">
+
+      <!-- Drawer Header -->
+      <div class="px-6 py-4 bg-[#08423d] text-white flex items-center justify-between shrink-0">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-extrabold tracking-wide">Patient Past Consultations File</h3>
+            <span id="slideover-p-code"
+              class="text-xs font-mono font-bold bg-[#0b5650] text-white px-2 py-0.5 rounded-full"></span>
+          </div>
+          <p id="slideover-patient-meta" class="text-xs text-slate-300 mt-0.5"></p>
+        </div>
+        <button type="button" onclick="closeHistorySlideover()"
+          class="text-slate-400 hover:text-white p-1 rounded-lg transition">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Drawer Content -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50">
+        <div id="slideover-history-container" class="space-y-3"></div>
+      </div>
+
+      <!-- Drawer Footer -->
+      <div class="p-4 border-t border-slate-200 bg-white flex justify-end shrink-0">
+        <button type="button" onclick="closeHistorySlideover()"
+          class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition">
+          Close History Drawer
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═════════════════════════════════════════════════════
+     FULL PATIENT PROFILE MODAL
+  ══════════════════════════════════════════════════════════ -->
+  <div id="patient-profile-modal"
+    class="hidden fixed inset-0 z-50 bg-[#08423d]/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col border border-slate-200 overflow-hidden">
+
+      <div class="px-6 py-4 bg-[#08423d] text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-[#0b5650] text-white flex items-center justify-center font-bold text-xs">
+            HSP
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="modal-profile-name" class="text-sm font-extrabold text-white"></h3>
+              <span id="modal-profile-code"
+                class="text-xs font-mono font-bold bg-[#e0a030] text-slate-900 px-2 py-0.5 rounded-full"></span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-300 mt-0.5">
+              <span id="modal-profile-phone"></span>
+              <span>•</span>
+              <span id="modal-profile-age-gender"></span>
+            </div>
+          </div>
+        </div>
+        <button type="button" onclick="closePatientProfileModal()" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
+        <div class="grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200 text-xs">
+          <div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase block">Reported Allergies</span>
+            <span id="modal-profile-allergies" class="font-bold text-slate-800"></span>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase block">Total Consultations on File</span>
+            <span id="modal-profile-total-visits" class="font-bold text-emerald-700"></span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-extrabold uppercase text-slate-500 mb-2">Chronological History of Consultations</h4>
+          <div id="modal-profile-history-container" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
+        <button type="button" onclick="closePatientProfileModal()"
+          class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          Close Profile
+        </button>
+        <button type="button" onclick="startConsultationFromProfileModal()"
+          class="px-4 py-2 bg-[#0b5650] hover:bg-[#0e6e66] text-white rounded-xl text-xs font-extrabold transition shadow-sm">
+          Start New Consultation For This Patient &rarr;
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       PRINT ZONE — Hair Skin Plus New Prescription Design
+       (Hidden on screen; activates on @media print)
+  ══════════════════════════════════════════════════════════════ -->
+  <div id="print-zone" class="sheet" style="display:none;">
+
+    <!-- ================= HEADER SECTION ================= -->
+    <header style="flex-shrink:0; position:relative;">
+      <div style="display:flex; height:175px;">
+
+        <!-- LOGO BOX (Left) -->
+        <div
+          style="width:230px; flex-shrink:0; border-right:2px solid #0b5650; padding:10px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#ffffff;">
+          <img src="/static/stamp.png"
+            style="max-height:155px; max-width:205px; width:auto; height:auto; object-fit:contain; display:block;"
+            alt="Hair Skin Plus Logo" onerror="this.style.display='none'">
+        </div>
+
+        <!-- DOCTOR DETAILS (Right) -->
+        <div
+          style="flex:1; background:#0b5650; color:#ffffff; text-align:center; display:flex; flex-direction:column; justify-content:center; padding:8px 16px; position:relative;">
+          <h1
+            style="font-family:'Playfair Display',Georgia,serif; font-style:italic; font-weight:700; font-size:42px; line-height:1.1; color:#ffffff; margin:0 0 2px;">
+            Hair Skin Plus</h1>
+
+          <!-- Consultant Badge -->
+          <div style="margin:2px 0;">
+            <span
+              style="font-family:'Libre Baskerville',Georgia,serif; font-weight:700; font-size:13px; padding:2px 14px; border-radius:9999px; color:#0b5650; background:#d7ebe8; display:inline-block;">
+              Consultant Dermatologist
+            </span>
+          </div>
+
+          <h2
+            style="font-family:'Libre Baskerville',Georgia,serif; font-weight:700; font-size:25px; line-height:1.2; color:#fecdd3; margin:2px 0 0;">
+            Dr. Seyab Ur Rahman</h2>
+          <p style="font-size:12px; line-height:1.4; color:#f5f5f5; font-weight:500; margin:2px 0 0;">
+            MBBS (PAK), FCPS (Dermatology) &bull; Fellowship Paeds Dermatology<br>
+            <span style="color:#99f6e4;">Ex Registrar CMH Peshawar</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Gold Stripe Divider -->
+      <div style="height:3.5px; background:#e0a030; width:100%;"></div>
+    </header>
+
+    <!-- ================= PATIENT BAR ================= -->
+    <section
+      style="margin:8px 20px 4px; padding:8px 14px; border:1.5px solid #0b5650; border-radius:12px; font-family:'Libre Baskerville',Georgia,serif; font-weight:700; font-size:13px; color:#0b5650; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:nowrap;">
+        <div style="display:flex; align-items:baseline; gap:6px; flex:1; min-width:0;">
+          <span style="white-space:nowrap;">Patient Name:</span>
+          <span id="pz-patient"
+            style="border-bottom:2px solid #0b5650; flex:1; font-weight:700; color:#1a1a1a; padding:0 4px; font-family:'Poppins',Arial,sans-serif; font-size:13px;">[
+            Patient Name ]</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:6px; width:110px;">
+          <span style="white-space:nowrap;">ID:</span>
+          <span id="pz-patient-id-tag"
+            style="border-bottom:2px solid #0b5650; flex:1; font-weight:700; color:#1a1a1a; padding:0 4px; font-family:monospace; font-size:12px;">HSP-0000</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:6px; width:80px;">
+          <span style="white-space:nowrap;">Visit#</span>
+          <span id="pz-visit-num"
+            style="border-bottom:2px solid #0b5650; flex:1; font-weight:700; color:#059669; padding:0 4px; font-size:12px; text-align:center;">1</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:6px; width:140px;">
+          <span style="white-space:nowrap;">Age/Sex:</span>
+          <span id="pz-patient-meta"
+            style="border-bottom:2px solid #0b5650; flex:1; font-weight:600; color:#1a1a1a; padding:0 4px; font-family:'Poppins',Arial,sans-serif; font-size:12px; text-align:center;">—</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:6px; width:160px;">
+          <span style="white-space:nowrap;">Date:</span>
+          <span id="pz-date2"
+            style="border-bottom:2px solid #0b5650; flex:1; font-weight:600; color:#1a1a1a; padding:0 4px; font-family:'Poppins',Arial,sans-serif; font-size:12px; text-align:right;">Today</span>
+        </div>
+      </div>
+
+      <!-- Diagnosis & Contact Sub-row -->
+      <div
+        style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:6px; padding-top:6px; border-top:1px dashed #cbd5e1; font-size:11.5px;">
+        <div style="display:flex; align-items:baseline; gap:6px; flex:1;">
+          <span style="color:#0b5650; font-weight:700;">Diagnosis:</span>
+          <span id="pz-diagnosis"
+            style="font-weight:700; color:#0b5650; font-family:'Poppins',Arial,sans-serif;">Pending Clinical
+            Diagnosis</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:6px;">
+          <span style="color:#64748b; font-weight:600;">Contact:</span>
+          <span id="pz-phone" style="font-weight:600; color:#334155; font-family:'Poppins',Arial,sans-serif;">—</span>
+        </div>
+        <div id="pz-allergies-row"
+          style="display:none; align-items:baseline; gap:6px; background:#fff1f2; padding:1px 6px; border-radius:4px; border:1px solid #fecdd3;">
+          <span style="color:#b91c1c; font-weight:700;">⚠ Allergies:</span>
+          <span id="pz-allergies"
+            style="font-weight:700; color:#991b1b; font-family:'Poppins',Arial,sans-serif;"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Divider Line -->
+    <div style="height:1.5px; background:#2a8f86; margin:0 20px;"></div>
+
+    <!-- ================= MAIN CLINICAL BODY ================= -->
+    <section style="position:relative; flex:1; margin:6px 20px; display:flex; gap:16px; min-height:480px;">
+
+      <!-- Watermark Image (Woman Silhouette) -->
+      <svg style="position:absolute; left:8px; top:32px; opacity:0.08; pointer-events:none; z-index:0;" width="290"
+        height="350" viewBox="0 0 560 600" aria-hidden="true">
+        <path
+          d="M158 5C175 60 150 115 95 175C35 240 5 320 12 390C18 440 45 470 68 460C40 400 45 335 90 275C150 205 178 150 158 5Z"
+          fill="#0b5650" />
+        <path
+          d="M180 5C215 55 225 115 195 175C160 235 85 280 68 360C55 440 95 520 240 568C110 545 40 470 55 365C70 275 150 235 188 165C218 105 205 50 180 5Z"
+          fill="#0b5650" />
+        <path
+          d="M240 85C290 165 275 255 215 322C170 372 150 410 170 465C190 520 265 548 300 562C190 548 118 500 118 425C118 355 190 305 232 235C265 175 268 125 240 85Z"
+          fill="#0b5650" />
+      </svg>
+
+      <!-- LEFT COLUMN: Clinical Notes & Investigations (w: 220px) -->
+      <div
+        style="width:220px; flex-shrink:0; border-right:2px solid #e2e8f0; padding-right:12px; display:flex; flex-direction:column; justify-content:space-between; position:relative; z-index:1; padding-top:4px; padding-bottom:4px;">
+
+        <!-- Clinical Record -->
+        <div style="flex:1;">
+          <span class="pill" style="margin-bottom:6px;">Clinical Record:</span>
+          <div id="pz-complaints-row"
+            style="display:none; font-size:9.5pt; color:#334155; margin-bottom:4px; line-height:1.4;">
+            <strong style="color:#0b5650;">Complaints:</strong> <span id="pz-complaints"></span>
+          </div>
+          <div id="pz-examination-row"
+            style="display:none; font-size:9.5pt; color:#334155; margin-bottom:4px; line-height:1.4;">
+            <strong style="color:#0b5650;">Examination:</strong> <span id="pz-examination"></span>
+          </div>
+          <div class="ruled-lines" style="width:100%; min-height:170px;"></div>
+        </div>
+
+        <!-- Investigations -->
+        <div style="flex:1; margin-top:12px;">
+          <span class="pill" style="margin-bottom:6px;">Investigations:</span>
+          <div id="pz-treatment-block"
+            style="display:none; font-size:9.5pt; color:#334155; margin-bottom:4px; line-height:1.4;">
+            <strong style="color:#0b5650;">Advice:</strong> <span id="pz-treatment-plan"></span>
+          </div>
+          <div id="pz-follow-up-block"
+            style="display:none; font-size:9.5pt; color:#0b5650; font-weight:700; margin-bottom:4px;">
+            <span>Follow-up:</span> <span id="pz-follow-up" style="text-decoration:underline;"></span>
+          </div>
+          <div class="ruled-lines" style="width:100%; min-height:170px;"></div>
+        </div>
+
+        <!-- Stamp in left column -->
+        <div style="margin-top:10px;">
+          <img src="/static/stamp.png" style="max-height:55px; max-width:75px; object-fit:contain;" alt="Clinic Stamp"
+            onerror="this.style.display='none'">
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Rx Section -->
+      <div
+        style="flex:1; display:flex; flex-direction:column; position:relative; z-index:1; padding-left:10px; padding-top:4px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+          <div class="serif font-bold text-[44px] leading-none mb-1 text-[var(--deep)]"
+            style="font-size:42px; line-height:1; color:#0b5650;">
+            R<span style="font-size:32px; position:relative; left:-2px;">X</span>
+          </div>
+          <span
+            style="font-size:10.5px; font-weight:700; color:#0b5650; letter-spacing:0.08em; text-transform:uppercase;">Prescription
+            / ادویات</span>
+        </div>
+
+        <!-- Prescribed Medicines Table -->
+        <div style="flex:1; width:100%;">
+          <table style="width:100%; border-collapse:collapse; font-size:9.5pt;">
+            <thead>
+              <tr style="background:#0b5650; color:#ffffff; text-align:left;">
+                <th style="padding:6px 8px; font-weight:600; width:28px; text-align:center;">#</th>
+                <th style="padding:6px 10px; font-weight:600;">Medicine &amp; Instructions / ہدایات</th>
+                <th style="padding:6px 8px; font-weight:600; width:140px;">Dosage / Freq / Duration</th>
+              </tr>
+            </thead>
+            <tbody id="pz-tbody"></tbody>
+          </table>
+
+          <!-- Ruled lines under table to complete page -->
+          <div class="ruled-lines" style="width:100%; min-height:90px; margin-top:8px;"></div>
+        </div>
+
+        <!-- Standard Urdu Patient Advice -->
+        <p class="pz-ur"
+          style="margin-top:10px; font-size:10pt; color:#334155; font-family:'Noto Nastaliq Urdu','Noto Sans Arabic',serif; direction:rtl; text-align:right; line-height:2.1; padding:4px 8px; background:#f0fdfa; border-radius:6px; border:1px solid #ccfbf1;">
+          نوٹ: دوا باقاعدگی سے اور ڈاکٹر کی ہدایات کے مطابق استعمال کریں۔ کسی بھی ناخوشگوار ردِعمل کی صورت میں فوری
+          رابطہ کریں۔
+        </p>
+
+        <!-- Doctor Signature Block -->
+        <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+          <div style="text-align:center; min-width:180px;">
+            <img src="/static/signature.png"
+              style="max-height:48px; max-width:130px; object-fit:contain; display:block; margin:0 auto;"
+              alt="Signature" onerror="this.style.display='none'">
+            <div style="border-top:1.5px solid #0b5650; padding-top:4px; margin-top:2px;">
+              <p class="serif" style="font-size:10.5pt; font-weight:700; color:#0b5650; margin:0;">Dr. Seyab Ur Rahman
+              </p>
+              <p style="font-size:8.5pt; color:#64748b; margin:0;">Consultant Dermatologist</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= SERVICES AVAILABLE ================= -->
+    <section style="margin:4px 20px; position:relative; padding-top:6px;">
+      <div style="height:1.5px; background:#0b5650; width:100%; margin-bottom:8px;"></div>
+
+      <span class="pill" style="font-size:12px; position:absolute; top:-6px; left:50%; transform:translateX(-50%);">
+        Services Available
+      </span>
+
+      <div
+        style="background:#d7ebe8; border:1px solid #c5e0dc; border-radius:12px; padding:6px 14px; text-align:center; font-size:12px; font-weight:500; color:#1e293b; display:flex; flex-direction:column; gap:3px; justify-content:center;">
+        <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span>Laser Hair Removal</span><span style="color:#94a3b8;">|</span>
+          <span>Hair Transplant</span><span style="color:#94a3b8;">|</span>
+          <span>Hair Exosome</span><span style="color:#94a3b8;">|</span>
+          <span>Hair PRP/PRGF</span><span style="color:#94a3b8;">|</span>
+          <span>Microneedling</span>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span>Face Rejuvenation</span><span style="color:#94a3b8;">|</span>
+          <span>PRP Botox</span><span style="color:#94a3b8;">|</span>
+          <span>Electrocautery</span><span style="color:#94a3b8;">|</span>
+          <span>Cryotherapy &amp; Hydrafacial</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <footer style="flex-shrink:0; position:relative;">
+      <div
+        style="background:#0b5650; color:#ffffff; height:85px; padding:0 24px; display:flex; align-items:center; justify-content:space-between; position:relative; overflow:hidden;">
+
+        <!-- Left: Location Address -->
+        <div style="display:flex; align-items:center; gap:12px; max-w-[420px]; z-index:10;">
+          <svg style="flex-shrink:0;" width="20" height="25" viewBox="0 0 30 38" fill="#fff" aria-hidden="true">
+            <path d="M15 0C7 0 1 6 1 14c0 10 14 24 14 24s14-14 14-24C29 6 23 0 15 0z" />
+            <circle cx="15" cy="14" r="5.5" fill="#0b5650" />
+          </svg>
+          <p style="font-size:11.5px; line-height:1.45; font-weight:500; color:#f5f5f5; margin:0;">
+            New Samad Building, Backside Khyber Medical Center,<br>
+            Near Peshawar Lab &bull; Dabgari Garden Peshawar.
+          </p>
+        </div>
+
+        <!-- Center Divider Line -->
+        <div style="width:1.5px; height:45px; background:#ffffff; opacity:0.4; z-index:10;"></div>
+
+        <!-- Right: Phone & Instagram -->
+        <div
+          style="display:flex; flex-direction:column; gap:4px; font-size:11.5px; font-weight:500; z-index:10; padding-right:50px;">
+          <p style="display:flex; align-items:center; gap:8px; margin:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+              <path
+                d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.35 2.3.55 3.6.55a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.3.2 2.5.6 3.6a1 1 0 0 1-.25 1z" />
+            </svg>
+            0301-5888800 / 0300-9016907
+          </p>
+          <p style="display:flex; align-items:center; gap:8px; margin:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"
+              aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="#fff" />
+            </svg>
+            @drseyab_dermatologist
+          </p>
+        </div>
+
+        <!-- Right Decorative Gold Pattern -->
+        <div style="position:absolute; right:0; top:0; bottom:0; width:85px; pointer-events:none; opacity:0.85;">
+          <svg viewBox="0 0 100 100" style="width:100%; height:100%;" preserveAspectRatio="none">
+            <polygon points="40,0 100,0 100,100" fill="#e0a030" />
+            <polygon points="0,100 100,0 100,100" fill="#e0a030" opacity="0.4" />
+          </svg>
+        </div>
+
+      </div>
+
+      <!-- Gold Bottom Accent Line -->
+      <div style="height:3.5px; background:#e0a030; width:100%;"></div>
+    </footer>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       JAVASCRIPT APPLICATION LOGIC
+  ══════════════════════════════════════════════════════════════ -->
+  <script>
+    // ── Application State ───────────────────────────────────────────────────
+    let currentTab = 'desk';
+    let rxItems = [];
+    let rxCounter = 0;
+    let activePatient = null;
+    let activePatientHistory = [];
+    let currentPrescriptionId = null;
+    let isSavingPrescription = false;
+    let intakeDebounceTimer = null;
+    let directoryDebounceTimer = null;
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'show';
+      setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 2800);
+    }
+
+    // ── Fullscreen Welcome Screen Controls ──────────────────────────────────
+    function openWelcomeScreen() {
+      const ws = document.getElementById('welcome-screen-overlay');
+      if (ws) {
+        ws.classList.remove('hidden');
+        ws.classList.add('flex');
+      }
+      const navWelcome = document.getElementById('tab-nav-welcome');
+      if (navWelcome) {
+        navWelcome.className = 'sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition duration-150 bg-[#0b5650] text-white shadow-md border-l-4 border-[#e0a030]';
+      }
+    }
+
+    function closeWelcomeScreen(targetTab) {
+      const ws = document.getElementById('welcome-screen-overlay');
+      if (ws) {
+        ws.classList.add('hidden');
+        ws.classList.remove('flex');
+      }
+      if (targetTab) {
+        switchTab(targetTab);
+      }
+    }
+
+    // ── Tab Navigation ──────────────────────────────────────────────────────
+    function switchTab(tabId) {
+      if (tabId === 'welcome') {
+        openWelcomeScreen();
+        return;
+      }
+
+      currentTab = tabId;
+      const tabs = ['desk', 'intake', 'records', 'catalog'];
+
+      tabs.forEach(t => {
+        const viewEl = document.getElementById(`tab-view-${t}`);
+        const navEl = document.getElementById(`tab-nav-${t}`);
+
+        if (viewEl && navEl) {
+          if (t === tabId) {
+            viewEl.classList.remove('hidden');
+            navEl.className = 'sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition duration-150 bg-[#0b5650] text-white shadow-md border-l-4 border-[#e0a030]';
+          } else {
+            viewEl.classList.add('hidden');
+            navEl.className = 'sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-[#0c4f49] hover:text-white transition duration-150';
+          }
+        }
+      });
+
+      // Clear welcome nav highlight when on a workspace tab
+      const navWelcome = document.getElementById('tab-nav-welcome');
+      if (navWelcome) {
+        navWelcome.className = 'sidebar-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-[#0c4f49] hover:text-white transition duration-150';
+      }
+
+      if (tabId === 'records') {
+        loadAllPatientsDirectory();
+      }
+    }
+
+    // ── Global Patient Header Updates ───────────────────────────────────────
+    function updateGlobalPatientHeader() {
+      const patientBar = document.getElementById('global-patient-bar');
+      const noPatientWarn = document.getElementById('desk-no-patient-warning');
+      const nameEl = document.getElementById('header-patient-name');
+      const idEl = document.getElementById('header-patient-id');
+      const statusEl = document.getElementById('header-consultation-status');
+      const phoneEl = document.getElementById('header-patient-phone');
+      const metaEl = document.getElementById('header-patient-meta');
+      const visitDateEl = document.getElementById('header-patient-last-visit');
+      const totalVisitsEl = document.getElementById('stat-total-visits');
+      const allergyBox = document.getElementById('stat-allergies-box');
+      const allergyText = document.getElementById('stat-allergies-text');
+
+      if (!activePatient) {
+        if (patientBar) patientBar.classList.add('hidden');
+        if (noPatientWarn) noPatientWarn.classList.remove('hidden');
+        updateLivePrescriptionSlip();
+        return;
+      }
+
+      if (patientBar) patientBar.classList.remove('hidden');
+      if (noPatientWarn) noPatientWarn.classList.add('hidden');
+      nameEl.textContent = activePatient.name || 'Walk-in Patient';
+      idEl.textContent = activePatient.patient_id || (activePatient.id ? `HSP-${String(activePatient.id).padStart(4, '0')}` : 'WALK-IN');
+      idEl.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#0b5650] text-white';
+      statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active Consultation';
+      statusEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1';
+      phoneEl.textContent = activePatient.phone ? `📞 ${activePatient.phone}` : 'No phone';
+
+      let meta = [];
+      if (activePatient.age) meta.push(`${activePatient.age}y`);
+      if (activePatient.gender) meta.push(activePatient.gender);
+      metaEl.textContent = meta.join(' | ') || 'Demographics';
+
+      const vCount = activePatientHistory ? activePatientHistory.length : 0;
+      totalVisitsEl.textContent = vCount;
+
+      const lastVisitDate = vCount > 0 && activePatientHistory[0].created_at
+        ? new Date(activePatientHistory[0].created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })
+        : 'First Visit Today';
+      visitDateEl.textContent = `Last Visit: ${lastVisitDate}`;
+
+      if (activePatient.allergies) {
+        allergyText.textContent = activePatient.allergies;
+        allergyBox.className = 'hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-100 border border-rose-300 text-rose-900 font-extrabold';
+      } else {
+        allergyText.textContent = 'None Reported';
+        allergyBox.className = 'hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-100 text-rose-900';
+      }
+
+      updateLivePrescriptionSlip();
+    }
+
+    // ── Live Prescription Card Slip Synchronizer ─────────────────────────────
+    function updateLivePrescriptionSlip() {
+      const pName = (activePatient && activePatient.name) || document.getElementById('rx-patient-name').value.trim() || '[ Patient Name ]';
+      const pId = (activePatient && activePatient.patient_id) || (activePatient && activePatient.id ? `HSP-${String(activePatient.id).padStart(4, '0')}` : '—');
+      const pPhone = (activePatient && activePatient.phone) || document.getElementById('rx-patient-phone').value.trim() || '—';
+      const pAge = (activePatient && activePatient.age) || document.getElementById('rx-patient-age').value.trim() || '';
+      const pGender = (activePatient && activePatient.gender) || document.getElementById('rx-patient-gender').value || '';
+      const diagnosis = document.getElementById('rx-diagnosis').value.trim() || 'Pending Clinical Examination';
+      const vNum = activePatient ? ((activePatientHistory ? activePatientHistory.length : 0) + 1) : 1;
+
+      document.getElementById('preview-patient-name').textContent = pName;
+      document.getElementById('preview-patient-id').textContent = pId;
+      document.getElementById('preview-patient-phone').textContent = pPhone;
+      document.getElementById('preview-patient-meta').textContent = `${pAge ? pAge + 'y / ' : ''}${pGender || '—'}`;
+      document.getElementById('preview-visit-no').textContent = activePatient ? `${vNum}` : '1';
+      document.getElementById('preview-date').textContent = new Date().toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' });
+      document.getElementById('preview-diagnosis').textContent = diagnosis;
+
+      // Update medicines in preview — compact 3-col card format
+      const tbody = document.getElementById('preview-medicines-tbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        if (rxItems.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="padding:8px 4px; text-align:center; color:#94a3b8; font-style:italic; font-size:5.5pt;">No medicines prescribed yet</td></tr>';
+        } else {
+          rxItems.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.style.cssText = 'border-bottom:1px solid #e5e7eb; vertical-align:top;';
+            const urdu = item.urdu || item.urdu_instructions || '';
+            tr.innerHTML =
+              '<td style="padding:2px 3px; color:#9ca3af; font-weight:600; font-size:5.5pt; vertical-align:top; text-align:center;">' + (index + 1) + '</td>' +
+              '<td style="padding:2px 4px; vertical-align:top; word-break:break-word;">' +
+              '<span style="font-size:6pt; font-weight:700; color:#0b5650; display:block;">' + escapeHtml(item.name || item.medicine_name) + '</span>' +
+              (urdu ? '<span style="font-size:6.5pt; color:#404040; font-family:\'Noto Nastaliq Urdu\',\'Noto Sans Arabic\',serif; direction:rtl; display:block; text-align:right; line-height:1.7;">' + escapeHtml(urdu) + '</span>' : '') +
+              '</td>' +
+              '<td style="padding:2px 3px; font-size:5.5pt; color:#374151; vertical-align:top; word-break:break-word;">' +
+              '<span style="display:block; font-weight:600;">' + escapeHtml(item.dosage || '—') + '</span>' +
+              '<span style="display:block; color:#6b7280;">' + escapeHtml(item.frequency || '') + '</span>' +
+              '<span style="display:block; color:#6b7280;">' + escapeHtml(item.duration || '') + '</span>' +
+              '</td>';
+            tbody.appendChild(tr);
+          });
+        }
+      }
+    }
+
+    // ── Switch Patient / Reset Desk ─────────────────────────────────────────
+    function switchPatientToNext() {
+      activePatient = null;
+      activePatientHistory = [];
+      clearRxDeskFields();
+      updateGlobalPatientHeader();
+      switchTab('intake');
+      const searchInput = document.getElementById('intake-search-input');
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      showIntakeIdle();
+      showToast('Switched to Patient Intake for next patient.');
+    }
+
+    function clearRxDeskFields() {
+      document.getElementById('rx-patient-id').value = '';
+      document.getElementById('rx-prescription-id').value = '';
+      document.getElementById('rx-is-new-visit').value = 'true';
+      currentPrescriptionId = null;
+      document.getElementById('rx-patient-name').value = '';
+      document.getElementById('rx-patient-phone').value = '';
+      document.getElementById('rx-patient-age').value = '';
+      document.getElementById('rx-patient-gender').value = '';
+      document.getElementById('rx-patient-allergies').value = '';
+      document.getElementById('rx-complaints').value = '';
+      document.getElementById('rx-examination').value = '';
+      document.getElementById('rx-diagnosis').value = '';
+      document.getElementById('rx-treatment-plan').value = '';
+      document.getElementById('rx-notes').value = '';
+      rxItems = [];
+      renderRx();
+    }
+
+    // ── Medicine Catalog Categories & Filtering ─────────────────────────────
+    function filterDeskCategory(cat, btn) {
+      document.querySelectorAll('.cat-pill').forEach(b => {
+        b.className = 'cat-pill px-3 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+      });
+      btn.className = 'cat-pill active px-3 py-1 rounded-lg font-bold bg-[#0b5650] text-white shadow-xs transition';
+
+      const searchVal = document.getElementById('desk-catalog-search').value.toLowerCase().trim();
+      filterDeskCards(searchVal, cat);
+    }
+
+    function filterDeskCatalog(term) {
+      const activePill = document.querySelector('.cat-pill.active');
+      const cat = activePill ? activePill.textContent.toLowerCase().trim() : 'all';
+      filterDeskCards(term.toLowerCase().trim(), cat);
+    }
+
+    function filterDeskCards(searchTerm, cat) {
+      document.querySelectorAll('.desk-med-card').forEach(card => {
+        const name = card.getAttribute('data-name');
+        const cardCat = card.getAttribute('data-cat');
+
+        let matchesCat = (cat === 'all');
+        if (!matchesCat) {
+          if (cat === 'topical') matchesCat = cardCat.includes('topical') || cardCat.includes('cream') || cardCat.includes('ointment');
+          else if (cat === 'oral') matchesCat = cardCat.includes('oral') || cardCat.includes('tablet') || cardCat.includes('capsule');
+          else if (cat === 'antifungal') matchesCat = cardCat.includes('antifungal');
+          else if (cat === 'antibiotic') matchesCat = cardCat.includes('antibiotic');
+          else if (cat === 'steroid') matchesCat = cardCat.includes('steroid');
+          else matchesCat = cardCat.includes(cat);
+        }
+
+        let matchesSearch = !searchTerm || name.includes(searchTerm) || cardCat.includes(searchTerm);
+
+        if (matchesCat && matchesSearch) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    // ── Prescription Desk Operations ────────────────────────────────────────
+    function addToRx(id, name, dosage, frequency, duration, urdu) {
+      const existing = rxItems.find(item =>
+        (id && item.id === id) ||
+        (item.name.trim().toLowerCase() === name.trim().toLowerCase())
+      );
+      if (existing) {
+        const el = document.getElementById('rx-card-' + existing.uid);
+        if (el) {
+          el.classList.add('ring-2', 'ring-[#0b5650]', 'bg-[#f0f9f8]');
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          setTimeout(() => el.classList.remove('ring-2', 'ring-[#0b5650]', 'bg-[#f0f9f8]'), 1200);
+        }
+        showToast(`"${name}" is already in the prescription list.`);
+        return;
+      }
+
+      rxItems.push({
+        uid: ++rxCounter,
+        id: id,
+        name: name,
+        dosage: dosage || '',
+        frequency: frequency || '',
+        duration: duration || '',
+        urdu: urdu || ''
+      });
+
+      renderRx();
+      showToast(`Added "${name}" to prescription.`);
+    }
+
+    function removeFromRx(uid) {
+      rxItems = rxItems.filter(item => item.uid !== uid);
+      renderRx();
+    }
+
+    function clearRx() {
+      if (rxItems.length > 0 && !confirm('Clear all inputs on the current prescription desk?')) return;
+      rxItems = [];
+      document.getElementById('rx-complaints').value = '';
+      document.getElementById('rx-examination').value = '';
+      document.getElementById('rx-diagnosis').value = '';
+      document.getElementById('rx-treatment-plan').value = '';
+      document.getElementById('rx-notes').value = '';
+      renderRx();
+    }
+
+    function renderRx() {
+      const container = document.getElementById('rx-items-container');
+      const emptyState = document.getElementById('rx-empty');
+      const badge = document.getElementById('rx-count-badge');
+
+      container.innerHTML = '';
+
+      if (rxItems.length === 0) {
+        emptyState.style.display = 'block';
+        badge.style.display = 'none';
+        updateLivePrescriptionSlip();
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      badge.style.display = 'inline-block';
+      badge.textContent = `${rxItems.length} item${rxItems.length > 1 ? 's' : ''}`;
+
+      rxItems.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.id = 'rx-card-' + item.uid;
+        card.className = 'bg-white border-l-4 border-[#0b5650] border border-slate-200 rounded-xl p-3 space-y-2 shadow-xs';
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="w-5 h-5 rounded-full bg-[#0b5650] text-white text-[10px] font-extrabold flex items-center justify-center shrink-0">${index + 1}</span>
+              <span class="text-xs font-bold text-slate-900 truncate">${escapeHtml(item.name)}</span>
+            </div>
+            <button onclick="removeFromRx(${item.uid})" class="text-slate-400 hover:text-rose-600 p-0.5 rounded transition" title="Remove">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="form-label" style="font-size:0.6rem;">Dosage</label>
+              <input type="text" class="form-input text-xs px-2 py-1" value="${escapeHtml(item.dosage)}"
+                     placeholder="1 Tab" oninput="updateRxField(${item.uid}, 'dosage', this.value)">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:0.6rem;">Frequency</label>
+              <input type="text" class="form-input text-xs px-2 py-1" value="${escapeHtml(item.frequency)}"
+                     placeholder="Once Daily" oninput="updateRxField(${item.uid}, 'frequency', this.value)">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:0.6rem;">Duration</label>
+              <input type="text" class="form-input text-xs px-2 py-1" value="${escapeHtml(item.duration)}"
+                     placeholder="5 Days" oninput="updateRxField(${item.uid}, 'duration', this.value)">
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" style="font-size:0.6rem;">Urdu Instructions</label>
+            <textarea rows="1" class="form-input urdu-text text-xs text-[#0b5650] font-bold px-2 py-1"
+                      placeholder="ہدایات…" oninput="updateRxField(${item.uid}, 'urdu', this.value)">${escapeHtml(item.urdu)}</textarea>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      updateLivePrescriptionSlip();
+    }
+
+    function updateRxField(uid, field, value) {
+      const item = rxItems.find(i => i.uid === uid);
+      if (item) {
+        item[field] = value;
+        updateLivePrescriptionSlip();
+      }
+    }
+
+    // ── Patient Intake Search & Verification ────────────────────────────────
+    function handleIntakeInput(val) {
+      clearTimeout(intakeDebounceTimer);
+      const query = val.trim();
+      if (query.length < 2) {
+        showIntakeIdle();
+        return;
+      }
+
+      document.getElementById('intake-spinner').classList.remove('hidden');
+      intakeDebounceTimer = setTimeout(() => {
+        performIntakeLookup(query);
+      }, 250);
+    }
+
+    function performIntakeLookup(query = null) {
+      const q = (query !== null ? query : document.getElementById('intake-search-input').value).trim();
+      if (!q) {
+        showIntakeIdle();
+        return;
+      }
+
+      document.getElementById('intake-spinner').classList.remove('hidden');
+
+      fetch(`/api/patients/lookup?q=${encodeURIComponent(q)}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('intake-spinner').classList.add('hidden');
+          if (data.found && data.patient) {
+            renderIntakePatientFound(data.patient, data.history || []);
+          } else {
+            renderIntakePatientNotFound(q, data.suggestions || []);
+          }
+        })
+        .catch(err => {
+          document.getElementById('intake-spinner').classList.add('hidden');
+          console.error(err);
+        });
+    }
+
+    function showIntakeIdle() {
+      document.getElementById('intake-state-idle').classList.remove('hidden');
+      document.getElementById('intake-state-found').classList.add('hidden');
+      document.getElementById('intake-state-notfound').classList.add('hidden');
+    }
+
+    function renderIntakePatientFound(patient, history) {
+      activePatient = patient;
+      activePatientHistory = history;
+
+      document.getElementById('intake-state-idle').classList.add('hidden');
+      document.getElementById('intake-state-notfound').classList.add('hidden');
+
+      const foundState = document.getElementById('intake-state-found');
+      foundState.classList.remove('hidden');
+
+      document.getElementById('found-p-name').textContent = patient.name;
+      document.getElementById('found-p-code').textContent = patient.patient_id || `HSP-${String(patient.id).padStart(4, '0')}`;
+      document.getElementById('found-p-phone').textContent = patient.phone ? `📞 ${patient.phone}` : 'No phone';
+
+      let meta = [];
+      if (patient.age) meta.push(`${patient.age} Years`);
+      if (patient.gender) meta.push(patient.gender);
+      document.getElementById('found-p-meta').textContent = meta.join(' | ') || 'Demographics';
+
+      const vCount = history.length;
+      document.getElementById('found-stat-visits').textContent = vCount;
+
+      const lastVisitDate = vCount > 0 && history[0].created_at
+        ? new Date(history[0].created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })
+        : 'Initial';
+      document.getElementById('found-stat-last-visit').textContent = lastVisitDate;
+      document.getElementById('found-stat-allergies').textContent = patient.allergies ? `⚠️ ${patient.allergies}` : 'No Allergies';
+
+      // Past Diagnoses Badges
+      const diagContainer = document.getElementById('found-past-diagnoses-list');
+      diagContainer.innerHTML = '';
+      const conditions = history.map(h => h.diagnosis).filter(Boolean);
+      const uniqueConds = [...new Set(conditions)];
+      if (uniqueConds.length > 0) {
+        uniqueConds.forEach(c => {
+          const span = document.createElement('span');
+          span.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-[#d7ebe8] text-[#0b5650] border border-[#c5e4e0]';
+          span.textContent = c;
+          diagContainer.appendChild(span);
+        });
+      } else {
+        diagContainer.innerHTML = '<span class="text-xs text-slate-400">None recorded</span>';
+      }
+
+      renderChronologicalHistoryCards('found-p-history-container', history, patient);
+      updateGlobalPatientHeader();
+    }
+
+    function renderChronologicalHistoryCards(containerId, history, patient) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      if (!history || history.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-50/70 rounded-xl border border-slate-200 p-6 text-center text-slate-400">
+            <p class="text-xs font-bold">No previous consultations recorded yet. Start their first consultation below.</p>
+          </div>
+        `;
+        return;
+      }
+
+      history.forEach((rx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-2.5';
+        const dateFormatted = new Date(rx.created_at).toLocaleString('en-PK', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        let itemsHtml = (rx.items || []).map((it, i) => `
+          <tr class="border-b border-slate-100 text-xs">
+            <td class="py-1 px-2 font-bold text-slate-400">${i + 1}</td>
+            <td class="py-1 px-2">
+              <span class="font-bold text-slate-900">${escapeHtml(it.medicine_name)}</span>
+              ${it.urdu_instructions ? `<div class="urdu-text text-cyan-900 text-xs font-bold mt-0.5">${escapeHtml(it.urdu_instructions)}</div>` : ''}
+            </td>
+            <td class="py-1 px-2 text-slate-600 font-medium">${escapeHtml(it.dosage || '—')}</td>
+            <td class="py-1 px-2 text-slate-600 font-medium">${escapeHtml(it.frequency || '—')}</td>
+            <td class="py-1 px-2 text-slate-600 font-medium">${escapeHtml(it.duration || '—')}</td>
+          </tr>
+        `).join('');
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#08423d] text-white">Visit #${rx.visit_number || 1}</span>
+              <span class="text-xs font-semibold text-slate-500">${dateFormatted}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="printHistoricalPrescription(${rx.id})" class="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-xxs font-bold transition flex items-center gap-1">
+                <svg class="w-3 h-3 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                <span>Print Slip</span>
+              </button>
+              <button type="button" onclick="copyHistoricalRxToDesk(${rx.id})" class="px-2.5 py-1 bg-[#f0f9f8] hover:bg-[#d7ebe8] border border-[#c5e4e0] text-[#0b5650] rounded-lg text-xxs font-bold transition flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span>Refill in New Rx</span>
+              </button>
+            </div>
+          </div>
+
+          ${rx.diagnosis ? `
+            <div class="text-xs flex items-center gap-1.5">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Diagnosis:</span>
+              <span class="font-extrabold text-[#0b5650] bg-[#f0f9f8] px-2 py-0.5 rounded border border-[#c5e4e0]">${escapeHtml(rx.diagnosis)}</span>
+            </div>
+          ` : ''}
+
+          ${rx.complaints ? `
+            <div class="text-xs text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
+              <strong class="text-slate-400 text-[10px] uppercase block mb-0.5">Symptoms:</strong>
+              ${escapeHtml(rx.complaints)}
+            </div>
+          ` : ''}
+
+          <div class="border border-slate-100 rounded-lg overflow-hidden">
+            <table class="w-full text-left">
+              <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+                <tr>
+                  <th class="py-1 px-2">#</th>
+                  <th class="py-1 px-2">Prescribed Medicine</th>
+                  <th class="py-1 px-2">Dose</th>
+                  <th class="py-1 px-2">Frequency</th>
+                  <th class="py-1 px-2">Duration</th>
+                </tr>
+              </thead>
+              <tbody>${itemsHtml || '<tr><td colspan="5" class="py-2 text-center text-xs text-slate-400">No medicines prescribed</td></tr>'}</tbody>
+            </table>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderIntakePatientNotFound(query, suggestions) {
+      document.getElementById('intake-state-idle').classList.add('hidden');
+      document.getElementById('intake-state-found').classList.add('hidden');
+
+      const notFoundState = document.getElementById('intake-state-notfound');
+      notFoundState.classList.remove('hidden');
+
+      const isDigits = /^\d+$/.test(query.replace(/[\s\-\+]/g, ''));
+      if (isDigits) {
+        document.getElementById('new-p-phone').value = query;
+        document.getElementById('new-p-name').value = '';
+      } else {
+        document.getElementById('new-p-name').value = query;
+        document.getElementById('new-p-phone').value = '';
+      }
+    }
+
+    function prepareNewPatientIntake() {
+      document.getElementById('intake-search-input').value = '';
+      renderIntakePatientNotFound('', []);
+      switchTab('intake');
+      document.getElementById('new-p-name').focus();
+    }
+
+    // ── Start Consultation & Transition to Desk ─────────────────────────────
+    function startNewConsultationForFoundPatient() {
+      if (!activePatient) return;
+
+      document.getElementById('rx-patient-id').value = activePatient.id;
+      document.getElementById('rx-prescription-id').value = '';
+      document.getElementById('rx-is-new-visit').value = 'true';
+      currentPrescriptionId = null;
+
+      document.getElementById('rx-patient-name').value = activePatient.name;
+      document.getElementById('rx-patient-phone').value = activePatient.phone || '';
+      document.getElementById('rx-patient-age').value = activePatient.age || '';
+      document.getElementById('rx-patient-gender').value = activePatient.gender || '';
+      document.getElementById('rx-patient-allergies').value = activePatient.allergies || '';
+
+      document.getElementById('rx-complaints').value = '';
+      document.getElementById('rx-examination').value = '';
+      document.getElementById('rx-diagnosis').value = '';
+      document.getElementById('rx-treatment-plan').value = '';
+      document.getElementById('rx-notes').value = '';
+      rxItems = [];
+      renderRx();
+
+      updateGlobalPatientHeader();
+      switchTab('desk');
+      showToast(`Prescription Desk ready for ${activePatient.name}`);
+    }
+
+    function repeatHistoryRxAndOpenDesk() {
+      if (!activePatientHistory || activePatientHistory.length === 0) {
+        alert('No previous prescription on file to copy.');
+        startNewConsultationForFoundPatient();
+        return;
+      }
+
+      const lastRx = activePatientHistory[0];
+      startNewConsultationForFoundPatient();
+
+      rxItems = [];
+      (lastRx.items || []).forEach(it => {
+        rxItems.push({
+          uid: ++rxCounter,
+          id: it.id || 0,
+          name: it.medicine_name,
+          dosage: it.dosage || '',
+          frequency: it.frequency || '',
+          duration: it.duration || '',
+          urdu: it.urdu_instructions || ''
+        });
+      });
+
+      if (lastRx.diagnosis) document.getElementById('rx-diagnosis').value = lastRx.diagnosis;
+      if (lastRx.treatment_plan) document.getElementById('rx-treatment-plan').value = lastRx.treatment_plan;
+
+      renderRx();
+      showToast('Loaded previous medicines into new consultation.');
+    }
+
+    function copyHistoricalRxToDesk(rxId) {
+      fetch(`/api/prescriptions/${rxId}`)
+        .then(res => res.json())
+        .then(rx => {
+          if (rx.error) return;
+          activePatient = {
+            id: rx.patient_id,
+            name: rx.patient_name,
+            phone: rx.patient_phone,
+            age: rx.patient_age,
+            gender: rx.patient_gender,
+            patient_id: rx.patient_code,
+            allergies: rx.patient_allergies
+          };
+
+          fetch(`/api/patients/${rx.patient_id}`)
+            .then(r => r.json())
+            .then(data => {
+              activePatientHistory = data.history || [];
+              startNewConsultationForFoundPatient();
+
+              rxItems = [];
+              (rx.items || []).forEach(it => {
+                rxItems.push({
+                  uid: ++rxCounter,
+                  id: it.id || 0,
+                  name: it.medicine_name,
+                  dosage: it.dosage || '',
+                  frequency: it.frequency || '',
+                  duration: it.duration || '',
+                  urdu: it.urdu_instructions || ''
+                });
+              });
+              if (rx.diagnosis) document.getElementById('rx-diagnosis').value = rx.diagnosis;
+              if (rx.treatment_plan) document.getElementById('rx-treatment-plan').value = rx.treatment_plan;
+              renderRx();
+
+              closeHistorySlideover();
+              closePatientProfileModal();
+              showToast(`Prescription from Visit #${rx.visit_number} loaded into new consultation sheet.`);
+            });
+        });
+    }
+
+    function registerAndProceedToDesk() {
+      const name = document.getElementById('new-p-name').value.trim();
+      if (!name) {
+        alert('Please enter Patient Full Name.');
+        document.getElementById('new-p-name').focus();
+        return;
+      }
+
+      const phone = document.getElementById('new-p-phone').value.trim();
+      const age = document.getElementById('new-p-age').value.trim();
+      const gender = document.getElementById('new-p-gender').value;
+      const allergies = document.getElementById('new-p-allergies').value.trim();
+      const medicalHistory = document.getElementById('new-p-medical-history').value.trim();
+
+      activePatient = {
+        id: null,
+        name: name,
+        phone: phone,
+        age: age,
+        gender: gender,
+        allergies: allergies,
+        medical_history: medicalHistory,
+        patient_id: 'NEW'
+      };
+      activePatientHistory = [];
+
+      document.getElementById('rx-patient-id').value = '';
+      document.getElementById('rx-prescription-id').value = '';
+      document.getElementById('rx-is-new-visit').value = 'true';
+      currentPrescriptionId = null;
+
+      document.getElementById('rx-patient-name').value = name;
+      document.getElementById('rx-patient-phone').value = phone;
+      document.getElementById('rx-patient-age').value = age;
+      document.getElementById('rx-patient-gender').value = gender;
+      document.getElementById('rx-patient-allergies').value = allergies;
+
+      document.getElementById('rx-complaints').value = '';
+      document.getElementById('rx-examination').value = '';
+      document.getElementById('rx-diagnosis').value = '';
+      document.getElementById('rx-treatment-plan').value = '';
+      document.getElementById('rx-notes').value = '';
+      rxItems = [];
+      renderRx();
+
+      updateGlobalPatientHeader();
+      switchTab('desk');
+      showToast(`Prescription Desk ready for ${name}`);
+    }
+
+    // ── Save & Print Handlers ───────────────────────────────────────────────
+    async function savePrescriptionData() {
+      if (isSavingPrescription) return null;
+
+      const patientName = (activePatient && activePatient.name) || document.getElementById('rx-patient-name').value.trim();
+      if (!patientName) {
+        alert('Please select or enter Patient Name.');
+        switchTab('intake');
+        return null;
+      }
+
+      const diagnosis = document.getElementById('rx-diagnosis').value.trim();
+      if (!diagnosis) {
+        alert('Please enter Clinical Diagnosis before saving.');
+        document.getElementById('rx-diagnosis').focus();
+        return null;
+      }
+
+      if (rxItems.length === 0) {
+        alert('Please prescribe at least one medication.');
+        return null;
+      }
+
+      const patientId = document.getElementById('rx-patient-id').value;
+      const prescriptionId = currentPrescriptionId || document.getElementById('rx-prescription-id').value;
+      const isNewVisit = document.getElementById('rx-is-new-visit').value === 'true';
+
+      const payload = {
+        is_new_visit: isNewVisit,
+        prescription_id: prescriptionId ? parseInt(prescriptionId, 10) : null,
+        patient_id: patientId ? parseInt(patientId, 10) : null,
+        patient_name: patientName,
+        patient_phone: (activePatient && activePatient.phone) || document.getElementById('rx-patient-phone').value.trim(),
+        patient_age: (activePatient && activePatient.age) || document.getElementById('rx-patient-age').value.trim(),
+        patient_gender: (activePatient && activePatient.gender) || document.getElementById('rx-patient-gender').value,
+        allergies: (activePatient && activePatient.allergies) || document.getElementById('rx-patient-allergies').value.trim(),
+        complaints: document.getElementById('rx-complaints').value.trim(),
+        examination: document.getElementById('rx-examination').value.trim(),
+        diagnosis: diagnosis,
+        treatment_plan: document.getElementById('rx-treatment-plan').value.trim(),
+        follow_up: document.getElementById('rx-follow-up').value.trim(),
+        doctor_notes: document.getElementById('rx-notes').value.trim(),
+        items: rxItems.map(it => ({
+          name: it.name,
+          dosage: it.dosage,
+          frequency: it.frequency,
+          duration: it.duration,
+          urdu: it.urdu
+        }))
+      };
+
+      isSavingPrescription = true;
+      document.getElementById('save-status-indicator').textContent = 'Saving consultation…';
+
+      try {
+        const res = await fetch('/api/prescriptions/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) {
+          currentPrescriptionId = result.prescription_id;
+          document.getElementById('rx-patient-id').value = result.patient_id;
+          document.getElementById('rx-prescription-id').value = result.prescription_id;
+          document.getElementById('rx-is-new-visit').value = 'false';
+
+          activePatient = {
+            id: result.patient_id,
+            name: patientName,
+            patient_id: result.patient_code,
+            phone: payload.patient_phone,
+            age: payload.patient_age,
+            gender: payload.patient_gender,
+            allergies: payload.allergies
+          };
+
+          const nowStr = new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+          document.getElementById('save-status-indicator').textContent = `Saved: Visit #${result.visit_number} at ${nowStr}`;
+
+          updateGlobalPatientHeader();
+          return result;
+        } else {
+          alert('Error: ' + (result.error || 'Failed to save consultation.'));
+          document.getElementById('save-status-indicator').textContent = 'Save failed';
+          return null;
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to save consultation to database.');
+        document.getElementById('save-status-indicator').textContent = 'Network error';
+        return null;
+      } finally {
+        isSavingPrescription = false;
+      }
+    }
+
+    async function saveAndPrintPrescriptionSheet() {
+      const saveBtn = document.getElementById('btn-save-print');
+      const origText = saveBtn.innerHTML;
+      saveBtn.innerHTML = `<span>Saving…</span>`;
+      saveBtn.disabled = true;
+
+      const result = await savePrescriptionData();
+      saveBtn.innerHTML = origText;
+      saveBtn.disabled = false;
+
+      if (result) {
+        showToast(`Consultation #${result.visit_number} saved to patient record!`);
+        triggerPrintSlip(result);
+      }
+    }
+
+    async function savePrescriptionOnly() {
+      const saveBtn = document.getElementById('btn-save-only');
+      const origText = saveBtn.innerHTML;
+      saveBtn.innerHTML = `<span>Saving…</span>`;
+      saveBtn.disabled = true;
+
+      const result = await savePrescriptionData();
+      saveBtn.innerHTML = origText;
+      saveBtn.disabled = false;
+
+      if (result) {
+        showToast(`Consultation #${result.visit_number} recorded in permanent file!`);
+      }
+    }
+
+    function triggerPrintSlip(saveResult = null) {
+      const patient = (activePatient && activePatient.name) || document.getElementById('rx-patient-name').value.trim() || 'N/A';
+      const patientId = (activePatient && activePatient.patient_id) || (saveResult && saveResult.patient_code) || '';
+      const phone = (activePatient && activePatient.phone) || document.getElementById('rx-patient-phone').value.trim();
+      const age = (activePatient && activePatient.age) || document.getElementById('rx-patient-age').value.trim();
+      const gender = (activePatient && activePatient.gender) || document.getElementById('rx-patient-gender').value;
+      const diagnosis = document.getElementById('rx-diagnosis').value.trim() || 'N/A';
+      const complaints = document.getElementById('rx-complaints').value.trim();
+      const treatmentPlan = document.getElementById('rx-treatment-plan').value.trim();
+      const followUp = document.getElementById('rx-follow-up').value.trim();
+      const visitNum = (saveResult && saveResult.visit_number) || '1';
+
+      const dateStr = new Date().toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' });
+      const timeStr = new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+
+      // Populate new card template fields
+      document.getElementById('pz-patient').textContent = patient;
+      document.getElementById('pz-patient-id-tag').textContent = patientId || 'HSP-0000';
+      document.getElementById('pz-date2').textContent = `${dateStr} ${timeStr}`;
+      document.getElementById('pz-visit-num').textContent = visitNum;
+      document.getElementById('pz-diagnosis').textContent = diagnosis;
+
+      let meta = [];
+      if (age) meta.push(`${age}y`);
+      if (gender) meta.push(gender);
+      document.getElementById('pz-patient-meta').textContent = meta.join(' / ') || '—';
+      document.getElementById('pz-phone').textContent = phone ? `Ph: ${phone}` : '—';
+
+      // Allergies (p element in new template)
+      const allergyVal = (activePatient && activePatient.allergies) || (saveResult && saveResult.allergies) || document.getElementById('rx-patient-allergies').value.trim() || '';
+      const allergyRow = document.getElementById('pz-allergies-row');
+      if (allergyVal) {
+        allergyRow.style.display = 'block';
+        document.getElementById('pz-allergies').textContent = allergyVal;
+      } else {
+        allergyRow.style.display = 'none';
+      }
+
+      // Complaints
+      const compRow = document.getElementById('pz-complaints-row');
+      if (complaints) {
+        compRow.style.display = 'block';
+        document.getElementById('pz-complaints').textContent = complaints;
+      } else {
+        compRow.style.display = 'none';
+      }
+
+      // Examination
+      const examVal = document.getElementById('rx-examination').value.trim();
+      const examRow = document.getElementById('pz-examination-row');
+      if (examVal) {
+        examRow.style.display = 'block';
+        document.getElementById('pz-examination').textContent = examVal;
+      } else {
+        examRow.style.display = 'none';
+      }
+
+      // Treatment Plan
+      const tpBlock = document.getElementById('pz-treatment-block');
+      if (treatmentPlan) {
+        tpBlock.style.display = 'block';
+        document.getElementById('pz-treatment-plan').textContent = treatmentPlan;
+      } else {
+        tpBlock.style.display = 'none';
+      }
+
+      // Follow-up
+      const fuBlock = document.getElementById('pz-follow-up-block');
+      if (followUp) {
+        fuBlock.style.display = 'block';
+        document.getElementById('pz-follow-up').textContent = followUp;
+      } else {
+        fuBlock.style.display = 'none';
+      }
+
+      // Medications Table — new 3-column card format (#, Medicine+Urdu, Dosage/Freq/Duration)
+      const tbody = document.getElementById('pz-tbody');
+      tbody.innerHTML = '';
+
+      rxItems.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.style.cssText = 'border-bottom: 1px solid #c9c9c9; vertical-align: top;';
+
+        const urdu = item.urdu || item.urdu_instructions || '';
+        tr.innerHTML = `
+          <td style="padding:8px; font-size:8.5pt; font-weight:600; color:#606060; text-align:center; vertical-align:top;">${index + 1}</td>
+          <td style="padding:8px 10px; vertical-align:top;">
+            <p style="font-size:9pt; font-weight:700; color:#0b5650; margin:0;">${escapeHtml(item.name || item.medicine_name)}</p>
+            ${urdu ? `<p class="pz-ur" style="font-size:10pt; color:#404040; margin:3px 0 0; font-family:'Noto Nastaliq Urdu','Noto Sans Arabic',serif; direction:rtl; text-align:right; line-height:2.1;">${escapeHtml(urdu)}</p>` : ''}
+          </td>
+          <td style="padding:8px; font-size:8.5pt; color:#1e293b; vertical-align:top; white-space:nowrap;">
+            ${escapeHtml(item.dosage || '—')}<br>
+            <span style="color:#606060;">${escapeHtml(item.frequency || '')}</span><br>
+            <span style="color:#606060;">${escapeHtml(item.duration || '')}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      setTimeout(() => {
+        window.print();
+      }, 50);
+    }
+
+    function printHistoricalPrescription(rxId) {
+      fetch(`/api/prescriptions/${rxId}`)
+        .then(res => res.json())
+        .then(rx => {
+          if (rx.error) return;
+          const patientId = rx.patient_code || '';
+          const dateFormatted = new Date(rx.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' });
+          const timeFormatted = new Date(rx.created_at).toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+
+          document.getElementById('pz-patient').textContent = rx.patient_name;
+          document.getElementById('pz-patient-id-tag').textContent = patientId || 'HSP-0000';
+          document.getElementById('pz-date2').textContent = `${dateFormatted} ${timeFormatted}`;
+          document.getElementById('pz-visit-num').textContent = rx.visit_number || 1;
+          document.getElementById('pz-diagnosis').textContent = rx.diagnosis || '—';
+
+          let meta = [];
+          if (rx.patient_age) meta.push(`${rx.patient_age}y`);
+          if (rx.patient_gender) meta.push(rx.patient_gender);
+          document.getElementById('pz-patient-meta').textContent = meta.join(' / ') || '—';
+          document.getElementById('pz-phone').textContent = rx.patient_phone ? `Ph: ${rx.patient_phone}` : '—';
+
+          // Allergies (p element in new template)
+          const allergyVal = rx.patient_allergies || '';
+          const allergyRow = document.getElementById('pz-allergies-row');
+          if (allergyVal) {
+            allergyRow.style.display = 'block';
+            document.getElementById('pz-allergies').textContent = allergyVal;
+          } else {
+            allergyRow.style.display = 'none';
+          }
+
+          // Complaints
+          const compRow = document.getElementById('pz-complaints-row');
+          if (rx.complaints) {
+            compRow.style.display = 'block';
+            document.getElementById('pz-complaints').textContent = rx.complaints;
+          } else {
+            compRow.style.display = 'none';
+          }
+
+          // Examination
+          const examRow = document.getElementById('pz-examination-row');
+          if (rx.examination) {
+            examRow.style.display = 'block';
+            document.getElementById('pz-examination').textContent = rx.examination;
+          } else {
+            examRow.style.display = 'none';
+          }
+
+          const tpBlock = document.getElementById('pz-treatment-block');
+          if (rx.treatment_plan) {
+            tpBlock.style.display = 'block';
+            document.getElementById('pz-treatment-plan').textContent = rx.treatment_plan;
+          } else {
+            tpBlock.style.display = 'none';
+          }
+
+          const fuBlock = document.getElementById('pz-follow-up-block');
+          if (rx.follow_up) {
+            fuBlock.style.display = 'block';
+            document.getElementById('pz-follow-up').textContent = rx.follow_up;
+          } else {
+            fuBlock.style.display = 'none';
+          }
+
+          // Medications Table — new 3-column card format
+          const tbody = document.getElementById('pz-tbody');
+          tbody.innerHTML = '';
+
+          (rx.items || []).forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.style.cssText = 'border-bottom: 1px solid #c9c9c9; vertical-align: top;';
+
+            const urdu = item.urdu_instructions || '';
+            tr.innerHTML = `
+              <td style="padding:8px; font-size:8.5pt; font-weight:600; color:#606060; text-align:center; vertical-align:top;">${index + 1}</td>
+              <td style="padding:8px 10px; vertical-align:top;">
+                <p style="font-size:9pt; font-weight:700; color:#0b5650; margin:0;">${escapeHtml(item.medicine_name)}</p>
+                ${urdu ? `<p class="pz-ur" style="font-size:10pt; color:#404040; margin:3px 0 0; font-family:'Noto Nastaliq Urdu','Noto Sans Arabic',serif; direction:rtl; text-align:right; line-height:2.1;">${escapeHtml(urdu)}</p>` : ''}
+              </td>
+              <td style="padding:8px; font-size:8.5pt; color:#1e293b; vertical-align:top; white-space:nowrap;">
+                ${escapeHtml(item.dosage || '—')}<br>
+                <span style="color:#606060;">${escapeHtml(item.frequency || '')}</span><br>
+                <span style="color:#606060;">${escapeHtml(item.duration || '')}</span>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          setTimeout(() => {
+            window.print();
+          }, 50);
+        });
+    }
+
+    // ── Slide-Over History Drawer ───────────────────────────────────────────
+    function openHistorySlideover() {
+      if (!activePatientHistory || activePatientHistory.length === 0) {
+        showToast('No previous consultations recorded yet.');
+        return;
+      }
+      const drawer = document.getElementById('history-slideover');
+      document.getElementById('slideover-p-code').textContent = (activePatient && activePatient.patient_id) || '';
+      document.getElementById('slideover-patient-meta').textContent = `${activePatient ? activePatient.name : ''} — ${activePatientHistory.length} consultation(s) on file`;
+
+      renderChronologicalHistoryCards('slideover-history-container', activePatientHistory, activePatient);
+      drawer.classList.remove('hidden');
+    }
+
+    function closeHistorySlideover() {
+      document.getElementById('history-slideover').classList.add('hidden');
+    }
+
+    // ── Patient Records Directory Table ─────────────────────────────────────
+    function handleDirectorySearch(val) {
+      clearTimeout(directoryDebounceTimer);
+      directoryDebounceTimer = setTimeout(() => {
+        loadAllPatientsDirectory(val.trim());
+      }, 300);
+    }
+
+    function loadAllPatientsDirectory(query = '') {
+      const container = document.getElementById('directory-list-container');
+      const gender = document.getElementById('directory-gender-filter').value;
+      container.innerHTML = '<div class="text-center py-10 text-slate-400 font-bold">Loading complete registered patients directory…</div>';
+
+      let url = `/api/patients?q=${encodeURIComponent(query)}`;
+      if (gender) url += `&gender=${encodeURIComponent(gender)}`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(patients => {
+          renderPatientDirectoryTable(patients);
+          document.getElementById('sidebar-patient-count').textContent = patients.length;
+        })
+        .catch(() => {
+          container.innerHTML = '<div class="text-center py-10 text-rose-500 font-bold">Failed to load patients.</div>';
+        });
+    }
+
+    function renderPatientDirectoryTable(patients) {
+      const container = document.getElementById('directory-list-container');
+      container.innerHTML = '';
+
+      if (!patients || patients.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 bg-white rounded-2xl border border-slate-200/90 text-slate-400">
+            <p class="text-sm font-bold text-slate-600">No matching patient records found</p>
+            <p class="text-xs text-slate-400 mt-1">Try searching by different spelling, ID, or phone number.</p>
+          </div>
+        `;
+        return;
+      }
+
+      patients.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-slate-200/90 p-4 shadow-card hover:border-[#0b5650] transition space-y-3';
+
+        const lastVisitStr = p.last_visit ? new Date(p.last_visit).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Never';
+        const pCode = p.patient_id || `HSP-${String(p.id).padStart(4, '0')}`;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#d7ebe8] text-[#0b5650] flex items-center justify-center font-bold text-sm shrink-0 border border-[#c5e4e0]">
+                ${escapeHtml((p.name || 'P').charAt(0).toUpperCase())}
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs font-mono font-bold bg-[#0b5650] text-white px-2 py-0.5 rounded-full">${escapeHtml(pCode)}</span>
+                  <h3 class="text-sm font-extrabold text-slate-900">${escapeHtml(p.name)}</h3>
+                  ${p.age ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">${escapeHtml(p.age)}y</span>` : ''}
+                  ${p.gender ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">${escapeHtml(p.gender)}</span>` : ''}
+                  ${p.phone ? `<span class="text-xs text-slate-500 font-medium">📞 ${escapeHtml(p.phone)}</span>` : ''}
+                </div>
+
+                <div class="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+                  <span class="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                    ${p.visit_count} Consultation${p.visit_count !== 1 ? 's' : ''} on file
+                  </span>
+                  <span>Last Consultation: <strong>${lastVisitStr}</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="openPatientProfileModal(${p.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                <span>View History</span>
+              </button>
+              <button onclick="startConsultationFromDirectory(${p.id})" class="px-3.5 py-1.5 bg-[#052e2a] hover:bg-[#052e2a] text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1">
+                <span>New Consultation &rarr;</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Latest Diagnosis:</span>
+              <span class="font-bold text-slate-800">${escapeHtml(p.latest_diagnosis || 'None recorded')}</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Allergies:</span>
+              <span class="${p.allergies ? 'text-rose-700 font-bold' : 'text-slate-400'}">${escapeHtml(p.allergies || 'None reported')}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ── Patient Profile Modal ────────────────────────────────────────────────
+    let currentModalPatient = null;
+
+    function openPatientProfileModal(patientId) {
+      fetch(`/api/patients/${patientId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) return;
+          const patient = data.patient;
+          const history = data.history || [];
+          currentModalPatient = patient;
+
+          document.getElementById('modal-profile-name').textContent = patient.name;
+          document.getElementById('modal-profile-code').textContent = patient.patient_id;
+          document.getElementById('modal-profile-phone').textContent = patient.phone ? `📞 ${patient.phone}` : 'No phone';
+
+          let meta = [];
+          if (patient.age) meta.push(`${patient.age}y`);
+          if (patient.gender) meta.push(patient.gender);
+          document.getElementById('modal-profile-age-gender').textContent = meta.join(' / ') || '—';
+
+          document.getElementById('modal-profile-allergies').textContent = patient.allergies ? `⚠️ ${patient.allergies}` : 'None reported';
+          document.getElementById('modal-profile-total-visits').textContent = `${history.length} Consultation${history.length !== 1 ? 's' : ''}`;
+
+          renderChronologicalHistoryCards('modal-profile-history-container', history, patient);
+          document.getElementById('patient-profile-modal').classList.remove('hidden');
+        });
+    }
+
+    function closePatientProfileModal() {
+      document.getElementById('patient-profile-modal').classList.add('hidden');
+    }
+
+    function startConsultationFromProfileModal() {
+      if (!currentModalPatient) return;
+      closePatientProfileModal();
+      startConsultationFromDirectory(currentModalPatient.id);
+    }
+
+    function startConsultationFromDirectory(patientId) {
+      fetch(`/api/patients/${patientId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) return;
+          activePatient = data.patient;
+          activePatientHistory = data.history || [];
+          startNewConsultationForFoundPatient();
+        });
+    }
+
+    // ── Medicine Catalog Helpers ────────────────────────────────────────────
+    function toggleAddPanel() {
+      const panel = document.getElementById('add-panel');
+      closeAllEdits();
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        setTimeout(() => panel.querySelector('input[name="name"]').focus(), 100);
+      }
+    }
+
+    function openEdit(id) {
+      document.getElementById('add-panel').classList.add('hidden');
+      closeAllEdits();
+      const editEl = document.getElementById('edit-' + id);
+      if (editEl) {
+        editEl.classList.remove('hidden');
+        editEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function closeEdit(id) {
+      const el = document.getElementById('edit-' + id);
+      if (el) el.classList.add('hidden');
+    }
+
+    function closeAllEdits() {
+      document.querySelectorAll('[id^="edit-"]').forEach(el => el.classList.add('hidden'));
+    }
+
+    function triggerDbBackup() {
+      showToast('Database file "medicines.db" is actively saved in D:\\der\\medicines.db');
+    }
+
+    // ── Sidebar Toggle ────────────────────────────────────────────────────────
+    function updateSidebarToggleTooltip(isCollapsed) {
+      const btn = document.getElementById('sidebar-toggle-btn');
+      if (btn) {
+        btn.setAttribute('title', isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar');
+        btn.setAttribute('aria-label', isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar');
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const isCollapsed = sidebar.classList.toggle('collapsed');
+      updateSidebarToggleTooltip(isCollapsed);
+      // Persist state so it survives tab switches
+      localStorage.setItem('sidebarCollapsed', isCollapsed ? '1' : '0');
+    }
+
+    // Restore sidebar state on load
+    (function () {
+      if (localStorage.getItem('sidebarCollapsed') === '1') {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.add('collapsed');
+        updateSidebarToggleTooltip(true);
+      }
+    })();
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeHistorySlideover();
+        closePatientProfileModal();
+        const ws = document.getElementById('welcome-screen-overlay');
+        if (ws && !ws.classList.contains('hidden')) {
+          closeWelcomeScreen('desk');
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    });
+
+    // App Initialization: Start on Welcome screen covering whole app
+    window.addEventListener('DOMContentLoaded', () => {
+      activePatient = null;
+      activePatientHistory = [];
+      updateGlobalPatientHeader();
+      switchTab('desk');
+      openWelcomeScreen();
+    });
+  </script>
+
+</body>
+
+</html>

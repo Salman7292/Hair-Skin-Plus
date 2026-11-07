@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DermaCare Clinic Management System{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        clinic: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom CSS styles (fonts, Urdu typography, print overrides) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-slate-50 text-slate-800 flex min-h-screen">
+
+    <!-- Sidebar Layout (Hidden during print) -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col fixed inset-y-0 left-0 z-20 no-print">
+        <!-- Sidebar Header (Clinic Logo / Branding) -->
+        <div class="p-6 border-b border-slate-800 flex items-center space-x-3 bg-slate-950">
+            <div class="p-2 bg-teal-500 rounded-lg text-white">
+                <i data-lucide="stethoscopes" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-sm leading-tight tracking-wide text-teal-400">DERMA CLINIC</h1>
+                <p class="text-xs text-slate-400">Prescription Desk</p>
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation links -->
+        <nav class="flex-1 px-4 py-6 space-y-1">
+            <a href="{{ url_for('dashboard') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-150 {% if request.path == '/' %} bg-teal-600 text-white {% else %} text-slate-300 hover:bg-slate-800 hover:text-white {% endif %}">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('patients_list') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-150 {% if request.path.startswith('/patients') %} bg-teal-600 text-white {% else %} text-slate-300 hover:bg-slate-800 hover:text-white {% endif %}">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span>Patients</span>
+            </a>
+            <a href="{{ url_for('prescriptions_history') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-150 {% if request.path.startswith('/prescriptions') and not request.path.endswith('/new') %} bg-teal-600 text-white {% else %} text-slate-300 hover:bg-slate-800 hover:text-white {% endif %}">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span>Prescriptions</span>
+            </a>
+            <a href="{{ url_for('medicines_list') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-150 {% if request.path.startswith('/medicines') %} bg-teal-600 text-white {% else %} text-slate-300 hover:bg-slate-800 hover:text-white {% endif %}">
+                <i data-lucide="pill" class="w-5 h-5"></i>
+                <span>Medicines</span>
+            </a>
+            <a href="{{ url_for('settings') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-150 {% if request.path == '/settings' %} bg-teal-600 text-white {% else %} text-slate-300 hover:bg-slate-800 hover:text-white {% endif %}">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-slate-800 text-center text-xs text-slate-500 bg-slate-950">
+            &copy; 2026 DermaCare.
+        </div>
+    </aside>
+
+    <!-- Main Content Container (Pushed right to account for sidebar) -->
+    <div class="flex-1 flex flex-col pl-64 w-full">
+        <!-- Top Navigation Header (Hidden during print) -->
+        <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-8 sticky top-0 z-10 no-print shadow-sm">
+            <div class="flex items-center space-x-2">
+                <span class="text-xs font-semibold px-2.5 py-1 bg-teal-50 text-teal-700 rounded-full border border-teal-200 flex items-center space-x-1">
+                    <span class="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse"></span>
+                    <span>Clinic Active</span>
+                </span>
+            </div>
+            <!-- Clinic & Doctor Profile Summary -->
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <h2 class="text-sm font-bold text-slate-800 leading-tight">{{ g_settings.get('doctor_name', 'Dr. Sarah Ahmed') }}</h2>
+                    <p class="text-xs text-slate-500">{{ g_settings.get('clinic_name', 'DermaCare Clinic') }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border border-teal-200 shadow-sm">
+                    DR
+                </div>
+            </div>
+        </header>
+
+        <!-- Flash Messages Container -->
+        <main class="flex-1 p-8 w-full max-w-7xl mx-auto">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6 space-y-3 no-print">
+                        {% for category, message in messages %}
+                            <div class="flex items-center p-4 rounded-xl text-sm border shadow-sm transition duration-150 animate-fade-in
+                                {% if category == 'success' %}
+                                    bg-emerald-50 text-emerald-800 border-emerald-200
+                                {% elif category == 'error' %}
+                                    bg-rose-50 text-rose-800 border-rose-200
+                                {% else %}
+                                    bg-blue-50 text-blue-800 border-blue-200
+                                {% endif %}
+                            ">
+                                <div class="mr-3">
+                                    {% if category == 'success' %}
+                                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>
+                                    {% elif category == 'error' %}
+                                        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-500"></i>
+                                    {% else %}
+                                        <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="font-medium">{{ message }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Dynamic Block Content -->
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Lucide Icon Library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Application Javascript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

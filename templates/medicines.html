@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Medicines - DermaCare{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column: Medicines List (2 cols on large screens) -->
+    <div class="lg:col-span-2 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">Medicines Index</h1>
+                <p class="text-sm text-slate-500">Search and manage default medicine formulas and Urdu instructions.</p>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative shadow-sm rounded-2xl bg-white border border-slate-100 p-4">
+            <div class="absolute inset-y-0 left-7 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="search" class="w-5 h-5"></i>
+            </div>
+            <input type="text" id="medicine-search-inventory" placeholder="Search by medicine name or category..."
+                   class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 text-sm">
+        </div>
+
+        <!-- Medicines Table Card -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 uppercase text-xs tracking-wider border-b border-slate-100">
+                            <th class="p-4 font-bold">Medicine Info</th>
+                            <th class="p-4 font-bold">Default Dosage & Frequency</th>
+                            <th class="p-4 font-bold">Urdu Instructions</th>
+                            <th class="p-4 font-bold text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medicines-table-body" class="divide-y divide-slate-100">
+                        {% if medicines %}
+                            {% for med in medicines %}
+                                <tr class="hover:bg-slate-50 transition duration-150" data-name="{{ med.name }}" data-category="{{ med.category }}">
+                                    <td class="p-4">
+                                        <div class="font-bold text-slate-900">{{ med.name }}</div>
+                                        <div class="text-xs text-teal-600 font-semibold mt-0.5">{{ med.category }}</div>
+                                        {% if med.notes %}
+                                            <div class="text-xs text-slate-400 mt-1 italic">{{ med.notes }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-4 text-sm text-slate-600">
+                                        <div class="font-medium text-slate-800">{{ med.default_dosage or '-' }}</div>
+                                        <div class="text-xs mt-0.5">{{ med.default_frequency or '-' }} ({{ med.default_duration or '-' }})</div>
+                                    </td>
+                                    <td class="p-4">
+                                        {% if med.urdu_instructions %}
+                                            <span class="urdu-text text-sm text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg inline-block shadow-sm" style="line-height:1.6">
+                                                {{ med.urdu_instructions }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-xs text-slate-400 italic">None</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <div class="flex justify-center items-center space-x-2">
+                                            <a href="{{ url_for('medicines_list', edit_id=med.id) }}" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition duration-150" title="Edit Formula">
+                                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                            </a>
+                                            <form action="{{ url_for('medicine_delete', id=med.id) }}" method="POST" class="inline delete-confirm-form" data-confirm-message="Are you sure you want to delete '{{ med.name }}'?">
+                                                <button type="submit" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition duration-150" title="Delete Formula">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="p-8 text-center text-slate-400 italic">
+                                    No medicines found in your inventory. Add one on the right to start!
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Add/Edit Medicine Form Card -->
+    <div class="space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden sticky top-24">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between {% if active_edit_medicine %} bg-blue-50 {% else %} bg-slate-50 {% endif %}">
+                <h2 class="font-bold text-slate-800 flex items-center space-x-2">
+                    {% if active_edit_medicine %}
+                        <i data-lucide="edit-3" class="w-5 h-5 text-blue-600"></i>
+                        <span>Edit Medicine Formula</span>
+                    {% else %}
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-teal-600"></i>
+                        <span>Add Medicine Formula</span>
+                    {% endif %}
+                </h2>
+                {% if active_edit_medicine %}
+                    <a href="{{ url_for('medicines_list') }}" class="text-xs font-semibold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded transition duration-150">
+                        Cancel Edit
+                    </a>
+                {% endif %}
+            </div>
+
+            <form action="{% if active_edit_medicine %}{{ url_for('medicine_edit', id=active_edit_medicine.id) }}{% else %}{{ url_for('medicine_add') }}{% endif %}" method="POST" class="p-6 space-y-4">
+                <!-- Medicine Name -->
+                <div>
+                    <label for="name" class="block text-xs font-bold text-slate-600 uppercase mb-1">Medicine Name</label>
+                    <input type="text" id="name" name="name" value="{{ active_edit_medicine.name if active_edit_medicine else '' }}" required
+                           placeholder="e.g. Cetirizine 10mg Tablet"
+                           class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label for="category" class="block text-xs font-bold text-slate-600 uppercase mb-1">Category</label>
+                    <input type="text" id="category" name="category" value="{{ active_edit_medicine.category if active_edit_medicine else '' }}" required
+                           placeholder="e.g. Oral Antihistamine, Topical Steroid"
+                           class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Default Dosage -->
+                    <div>
+                        <label for="default_dosage" class="block text-xs font-bold text-slate-600 uppercase mb-1">Default Dosage</label>
+                        <input type="text" id="default_dosage" name="default_dosage" value="{{ active_edit_medicine.default_dosage if active_edit_medicine else '' }}"
+                               placeholder="e.g. 1 Tablet, Apply thinly"
+                               class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                    </div>
+
+                    <!-- Default Frequency -->
+                    <div>
+                        <label for="default_frequency" class="block text-xs font-bold text-slate-600 uppercase mb-1">Default Frequency</label>
+                        <input type="text" id="default_frequency" name="default_frequency" value="{{ active_edit_medicine.default_frequency if active_edit_medicine else '' }}"
+                               placeholder="e.g. Once Daily, Twice Daily"
+                               class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                    </div>
+                </div>
+
+                <!-- Default Duration -->
+                <div>
+                    <label for="default_duration" class="block text-xs font-bold text-slate-600 uppercase mb-1">Default Duration</label>
+                    <input type="text" id="default_duration" name="default_duration" value="{{ active_edit_medicine.default_duration if active_edit_medicine else '' }}"
+                           placeholder="e.g. 5 Days, 2 Weeks"
+                           class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">
+                </div>
+
+                <!-- Urdu Instructions -->
+                <div>
+                    <label for="urdu_instructions" class="block text-xs font-bold text-slate-600 uppercase mb-1">Default Urdu Instructions (RTL)</label>
+                    <textarea id="urdu_instructions" name="urdu_instructions" rows="3" placeholder="یہ دوا روزانہ ایک گولی رات کو استعمال کریں۔"
+                              class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 text-right font-medium" style="direction: rtl;"></textarea>
+                </div>
+
+                <!-- Doctor Notes -->
+                <div>
+                    <label for="notes" class="block text-xs font-bold text-slate-600 uppercase mb-1">Internal Notes</label>
+                    <textarea id="notes" name="notes" rows="2" placeholder="e.g. For pediatric use, caution with kidney patients"
+                              class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150">{{ active_edit_medicine.notes if active_edit_medicine else '' }}</textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button type="submit" class="w-full font-bold px-4 py-2.5 rounded-lg shadow-sm text-white transition duration-150 flex items-center justify-center space-x-2
+                        {% if active_edit_medicine %} bg-blue-600 hover:bg-blue-700 {% else %} bg-teal-600 hover:bg-teal-700 {% endif %}">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>{% if active_edit_medicine %}Save Changes{% else %}Add Formula{% endif %}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Autofill Urdu text field if editing and has value (textareas are tricky in html inside value attribute)
+    {% if active_edit_medicine and active_edit_medicine.urdu_instructions %}
+        document.getElementById('urdu_instructions').value = `{{ active_edit_medicine.urdu_instructions|safe }}`;
+    {% endif %}
+</script>
+{% endblock %}

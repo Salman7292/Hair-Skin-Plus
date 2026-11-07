@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Rx Prescription: {{ patient.name }} - DermaCare{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Action Banner (Hidden during print) -->
+    <div class="flex justify-between items-center no-print">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Prescription Saved</h1>
+            <p class="text-sm text-slate-500">View prescription details or print a copy for the patient.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('patient_profile', id=patient.id) }}" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl text-sm hover:bg-slate-50 transition duration-150 flex items-center space-x-1.5 shadow-sm">
+                <i data-lucide="user" class="w-4 h-4 text-slate-500"></i>
+                <span>Patient Profile</span>
+            </a>
+            <a href="{{ url_for('prescription_new', patient_id=patient.patient_id) }}" class="px-4 py-2 bg-white border border-slate-200 text-teal-700 font-semibold rounded-xl text-sm hover:bg-teal-50 transition duration-150 flex items-center space-x-1.5 shadow-sm">
+                <i data-lucide="file-signature" class="w-4 h-4 text-teal-600"></i>
+                <span>New Prescription</span>
+            </a>
+            <button onclick="window.print()" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm shadow-md hover:shadow-lg transition duration-150 flex items-center space-x-2">
+                <i data-lucide="printer" class="w-5 h-5"></i>
+                <span>Print Prescription</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Printable Prescription Document Frame -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 md:p-12 max-w-4xl mx-auto print-container">
+        
+        <!-- Letterhead Header -->
+        <div class="print-letterhead flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-teal-600 pb-6 mb-6">
+            <div>
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-wide">{{ g_settings.get('doctor_name', 'Dr. Sarah Ahmed') }}</h1>
+                <p class="text-xs font-bold text-teal-600 mt-0.5 uppercase tracking-wider">{{ g_settings.get('doctor_specialty', 'MBBS, MD - Dermatologist') }}</p>
+                <p class="text-xs text-slate-500 mt-1 max-w-md font-medium">{{ g_settings.get('clinic_address', 'Clinic Address Details') }}</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-left md:text-right border-l-0 md:border-l border-slate-200 md:pl-6">
+                <h2 class="text-base font-bold text-slate-800">{{ g_settings.get('clinic_name', 'DermaCare Clinic') }}</h2>
+                <p class="text-xs text-slate-500 font-semibold mt-1">Phone: {{ g_settings.get('clinic_phone', '+92 300 0000000') }}</p>
+                <p class="text-xxs text-slate-400 font-light mt-1">Timings: Mon - Sat (4:00 PM - 9:00 PM)</p>
+            </div>
+        </div>
+
+        <!-- Patient Info Grid -->
+        <div class="bg-slate-50 border border-slate-100 rounded-xl p-5 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-medium text-slate-700 print-bg-gray">
+            <div>
+                <span class="text-slate-400 block uppercase tracking-wide text-xxs font-bold mb-0.5">Patient Name</span>
+                <span class="text-slate-900 font-bold text-sm">{{ patient.name }}</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block uppercase tracking-wide text-xxs font-bold mb-0.5">Patient ID</span>
+                <span class="text-slate-900 font-semibold text-sm">{{ patient.patient_id }}</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block uppercase tracking-wide text-xxs font-bold mb-0.5">Age / Gender</span>
+                <span class="text-slate-900 font-semibold text-sm">{{ patient.age }} yrs / {{ patient.gender }}</span>
+            </div>
+            <div class="text-left md:text-right">
+                <span class="text-slate-400 block uppercase tracking-wide text-xxs font-bold mb-0.5">Date & Time</span>
+                <span class="text-slate-900 font-semibold text-sm">{{ prescription.created_at[:16] }}</span>
+            </div>
+        </div>
+
+        <!-- Diagnosis Segment -->
+        <div class="mb-8">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Diagnosis / Skin Condition</h3>
+            <div class="p-3 border-l-4 border-teal-500 bg-slate-50 font-bold text-slate-900 text-sm print-bg-gray">
+                {{ prescription.diagnosis }}
+            </div>
+        </div>
+
+        <!-- Rx Prescription Logo Symbol -->
+        <div class="mb-4">
+            <span class="text-3xl font-extrabold text-teal-700 italic font-serif">Rx</span>
+        </div>
+
+        <!-- Prescription Medications Table -->
+        <table class="w-full text-left border-collapse border border-slate-200 mb-8">
+            <thead>
+                <tr class="bg-slate-100 text-slate-600 uppercase text-xxs tracking-wider border-b border-slate-200 print-bg-gray">
+                    <th class="p-3 font-bold border border-slate-200">#</th>
+                    <th class="p-3 font-bold border border-slate-200">Medicine & Instructions</th>
+                    <th class="p-3 font-bold border border-slate-200 w-32">Dosage</th>
+                    <th class="p-3 font-bold border border-slate-200 w-36">Frequency</th>
+                    <th class="p-3 font-bold border border-slate-200 w-28">Duration</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-sm">
+                {% if items %}
+                    {% for item in items %}
+                        <tr class="align-top">
+                            <td class="p-3 font-semibold text-slate-500 border border-slate-200">{{ loop.index }}</td>
+                            <td class="p-3 border border-slate-200 space-y-1">
+                                <div class="font-bold text-slate-900">{{ item.medicine_name }}</div>
+                                {% if item.urdu_instructions %}
+                                    <div class="urdu-text text-teal-800 text-base font-semibold pt-1 border-t border-dashed border-teal-100/50" style="line-height:1.8">
+                                        {{ item.urdu_instructions }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="p-3 text-slate-700 border border-slate-200 font-medium">{{ item.dosage or '-' }}</td>
+                            <td class="p-3 text-slate-700 border border-slate-200 font-medium">{{ item.frequency or '-' }}</td>
+                            <td class="p-3 text-slate-700 border border-slate-200 font-medium">{{ item.duration or '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-slate-400 italic">
+                            No medications added to this prescription sheet.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Advice & General Clinical Notes -->
+        {% if prescription.doctor_notes %}
+            <div class="mb-12">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Doctor's Advice & General Notes</h3>
+                <div class="p-4 bg-slate-50 border border-slate-100 text-slate-700 text-xs rounded-xl leading-relaxed whitespace-pre-line print-bg-gray">
+                    {{ prescription.doctor_notes }}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Letterhead Footer Signatures -->
+        <div class="flex justify-between items-end pt-12 mt-12 border-t border-slate-100">
+            <div class="text-xxs text-slate-400 font-medium">
+                Generated via DermaCare Prescription System.<br>
+                For questions, contact support line: {{ g_settings.get('clinic_phone') }}
+            </div>
+            <div class="text-center w-52">
+                <div class="h-10 border-b border-slate-300 w-full mb-2"></div>
+                <div class="text-xs font-bold text-slate-800">{{ g_settings.get('doctor_name', 'Dr. Sarah Ahmed') }}</div>
+                <div class="text-xxs text-slate-400 font-semibold tracking-wide mt-0.5 uppercase">Authorized Signature</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
