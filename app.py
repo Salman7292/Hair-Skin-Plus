@@ -787,5 +787,7 @@ def _extract_med_form():
     }
 
 if __name__ == '__main__':
+    import sys as _sys
+    _is_frozen = getattr(_sys, 'frozen', False)
     init_db()
-    app.run(host='127.0.0.1', port=5050, debug=True)
+    app.run(host='127.0.0.1', port=5050, debug=(not _is_frozen), use_reloader=(not _is_frozen))

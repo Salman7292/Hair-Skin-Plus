@@ -16,3 +16,15 @@ desktop.ini
 # IDE files
 .vscode/
 .idea/
+
+# PyInstaller build artifacts (large — not tracked in git)
+build/
+dist/
+*.spec.bak
+
+# Installer output (generated locally)
+Output/
+
+# Live database (user data — not in source control)
+medicines.db
+
