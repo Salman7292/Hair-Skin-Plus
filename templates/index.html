@@ -1862,7 +1862,7 @@
                 </div>
 
                 <div class="flex items-center gap-1">
-                  <button type="button" onclick="openEdit({{ med.id }})"
+                  <button type="button" data-id="{{ med.id }}" onclick="openEditById(this)"
                     class="p-1.5 text-slate-400 hover:text-[#0b5650] transition">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
@@ -1909,7 +1909,7 @@
                   <input type="text" name="urdu_instructions" value="{{ med.urdu_instructions }}"
                     placeholder="Urdu instructions" class="form-input urdu-text text-xs">
                   <div class="flex justify-end gap-1.5 pt-1">
-                    <button type="button" onclick="closeEdit({{ med.id }})"
+                    <button type="button" data-id="{{ med.id }}" onclick="closeEditById(this)"
                       class="px-2.5 py-1 bg-slate-100 text-slate-700 text-xxs font-bold rounded-lg">Cancel</button>
                     <button type="submit"
                       class="px-3 py-1 bg-[#0b5650] text-white text-xxs font-bold rounded-lg">Update</button>
@@ -2609,6 +2609,10 @@
         d.urdu || ''
       );
     }
+
+    // ── Catalog Edit Helpers (data-* shim for Jinja2 onclick safety) ────────
+    function openEditById(btn)  { openEdit(parseInt(btn.dataset.id, 10)); }
+    function closeEditById(btn) { closeEdit(parseInt(btn.dataset.id, 10)); }
 
     function addToRx(id, name, dosage, frequency, duration, urdu) {
       const existing = rxItems.find(item =>
