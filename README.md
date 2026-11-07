@@ -34,11 +34,25 @@ A modern, offline-capable, and comprehensive Clinic Management & Digital Prescri
 
 ## 🚀 Quick Start & Installation
 
-### 1. Requirements
+### ⚡ Option 1 — Windows Desktop Installer (Recommended)
+
+> No Python or terminal required — just download and double-click.
+
+1. Download **`HairSkinPlus-Setup.exe`** from [Releases](https://github.com/Salman7292/Hair-Skin-Plus/releases)
+2. Double-click the installer → Next → Install → Finish
+3. Launch from the **Desktop shortcut** or **Start Menu**
+
+The app opens automatically in your browser at `http://127.0.0.1:5050`.
+
+---
+
+### 🛠️ Option 2 — Run from Source (Developers)
+
+#### Requirements
 - Python 3.9+
 - Flask
 
-### 2. Setup & Installation
+#### Setup
 ```powershell
 # Clone the repository
 git clone https://github.com/Salman7292/Hair-Skin-Plus.git
@@ -48,7 +62,7 @@ cd Hair-Skin-Plus
 pip install -r requirements.txt
 ```
 
-### 3. Running the Application
+#### Running the Application
 ```powershell
 python app.py
 ```
@@ -58,14 +72,34 @@ The application runs locally at:
 
 ---
 
+### 🏗️ Build the Installer Yourself
+
+```powershell
+# 1. Run the build script (installs PyInstaller, compiles the exe)
+BUILD_INSTALLER.bat
+
+# Or manually:
+pyinstaller HairSkinPlus.spec --noconfirm
+
+# 2. Then compile installer.iss with Inno Setup 6
+#    Download: https://jrsoftware.org/isdl.php
+#    Output: Output\HairSkinPlus-Setup.exe
+```
+
+---
+
 ## 📂 Project Structure
 
 ```text
 Hair-Skin-Plus/
 │
 ├── app.py                  # Main Flask application and REST API endpoints
-├── medicines.db            # SQLite database for patients, visits, and medicines
+├── launcher.py             # PyInstaller entry point (splash screen + browser launch)
+├── HairSkinPlus.spec       # PyInstaller build configuration
+├── installer.iss           # Inno Setup installer script → HairSkinPlus-Setup.exe
+├── BUILD_INSTALLER.bat     # One-click build script (PyInstaller + Inno Setup)
 ├── requirements.txt        # Python package dependencies
+├── schema.sql              # Database schema
 ├── README.md               # Project documentation
 │
 ├── static/
@@ -74,11 +108,9 @@ Hair-Skin-Plus/
 │   │   ├── fonts.css       # Local self-hosted font definitions
 │   │   └── tailwind.min.css# Standalone offline Tailwind bundle
 │   ├── js/
-│   │   ├── tailwind.cdn.js # Offline client-side Tailwind compiler
-│   │   └── app.js          # Client-side helper routines
-│   ├── fonts/              # Offline TTF / WOFF2 font files
+│   │   └── tailwind.cdn.js # Offline client-side Tailwind compiler
+│   ├── fonts/              # Offline TTF font files (18 fonts)
 │   ├── stamp.png           # Official clinic logo / seal
-│   ├── signature.png       # Doctor digital signature
 │   ├── doctor_photo.png    # Doctor portrait hero cutout
 │   └── app_icon.ico        # Window and browser application icon
 │
